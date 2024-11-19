@@ -1,6 +1,6 @@
-# Bedrock Playground
+# Battleground
 
-Bedrock Playground is a powerful tool designed to help developers and AI enthusiasts explore and compare Amazon Bedrock's Large Language Models (LLMs). Key features include:
+Battleground is a powerful tool designed to help developers and AI enthusiasts explore and compare Amazon Bedrock's Large Language Models (LLMs). Key features include:
 
 - Model Comparison: Evaluate and compare the speed, performance, and cost of different Bedrock LLM models side by side.
 - Image Generation: Utilize Bedrock's image generation capabilities to create and compare visual outputs across models.
