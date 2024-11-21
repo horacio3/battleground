@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { UserButton } from "@clerk/nextjs";
+import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { SettingsButton } from "./settings-button";
 import { ThemeToggle } from "./theme-toggle";
@@ -98,6 +100,11 @@ export function PlaygroundLayout({ children }: { children: React.ReactNode }) {
       <div className="flex flex-col overflow-hidden overscroll-contain scroll-smooth">
         <header className="sticky top-0 z-10 flex h-14 items-center gap-1 border-b bg-background px-4">
           <h1 className="text-xl font-semibold">Bedrock Battleground</h1>
+          <Button variant="ghost" size="icon" className="ml-auto" asChild>
+            <Link href="https://github.com/caylent/battleground" target="_blank">
+              <Image src="/github-mark.png" alt="Github" width={20} height={20} />
+            </Link>
+          </Button>
         </header>
         {children}
       </div>
