@@ -30,11 +30,6 @@ export const getImageModelPrompt = ({ modelId, messages, config }: GetModelPromp
           ...settings,
         },
       };
-    case "stability.stable-diffusion-xl-v1":
-      return {
-        text_prompts: messages.map((m) => ({ text: m.content })),
-        ...settings,
-      };
     case "stability.stable-image-core-v1:0":
     case "stability.stable-image-ultra-v1:0":
     case "stability.sd3-large-v1:0":
@@ -52,8 +47,6 @@ export const getImageModelResponse = (modelId: ImageModelId, response: any) => {
     case "amazon.titan-image-generator-v1":
     case "amazon.titan-image-generator-v2:0":
       return (response.images as []).map((imageData: any) => `![Image](data:image/png;base64,${imageData})`).join("\n");
-    case "stability.stable-diffusion-xl-v1":
-      return `![${response.result}](data:image/png;base64,${response.artifacts[0].base64})`;
     case "stability.stable-image-core-v1:0":
     case "stability.stable-image-ultra-v1:0":
     case "stability.sd3-large-v1:0":
