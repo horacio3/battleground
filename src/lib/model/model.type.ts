@@ -55,7 +55,6 @@ export type TextModelId =
 export type ImageModelId =
   | "amazon.titan-image-generator-v1"
   | "amazon.titan-image-generator-v2:0"
-  | "stability.stable-diffusion-xl-v1"
   | "stability.stable-image-core-v1:0"
   | "stability.sd3-large-v1:0"
   | "stability.stable-image-ultra-v1:0";

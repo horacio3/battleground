@@ -9,7 +9,6 @@ import {
   mistralLargeConfig,
   openAiGpt4oConfig,
   openAiGpt4ominiConfig,
-  sdxlModelConfig,
   stabilityModelConfig,
   titanImageModelConfig,
   titanTextExpressConfig,
@@ -373,13 +372,6 @@ export const imageModels: ImageModel[] = [
     name: "Titan G1 V2",
     provider: "Amazon",
     config: titanImageModelConfig,
-  },
-  {
-    inputModalities: ["TEXT", "IMAGE"],
-    id: "stability.stable-diffusion-xl-v1",
-    name: "SDXL 1.0",
-    provider: "Stability AI",
-    config: sdxlModelConfig,
   },
   {
     provider: "Stability AI",
