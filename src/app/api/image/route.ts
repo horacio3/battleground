@@ -2,8 +2,9 @@ import { getImageModelPrompt, getImageModelResponse } from "@/lib/image-prompt-h
 import { ModelConfig } from "@/lib/model/model-config.type";
 import { ImageModelId } from "@/lib/model/model.type";
 import { imageModels } from "@/lib/model/models";
-import { ratelimit } from "@/lib/rate-limiter";
+import { externalRateLimiter, internalRateLimiter } from "@/lib/rate-limiter";
 import { BedrockRuntimeClient, InvokeModelCommand } from "@aws-sdk/client-bedrock-runtime";
+import { auth } from "@clerk/nextjs/server";
 import { Message } from "ai/react";
 import { NextRequest } from "next/server";
 
@@ -12,11 +13,22 @@ export const runtime = "edge";
 
 const decoder = new TextDecoder();
 
-export async function POST(req: NextRequest) {
-  const { success } = await ratelimit.limit(req.ip ?? "127.0.0.1");
+const internalRateLimitDomain = process.env.INTERNAL_RATE_LIMIT_DOMAIN;
 
-  if (!success) {
-    return new Response(JSON.stringify({ message: "Too many requests" }), { status: 429 });
+export async function POST(req: NextRequest) {
+  const { sessionClaims } = auth();
+
+  // If the user is from the internal rate limit domain, we use a different rate limiter
+  if (internalRateLimitDomain && sessionClaims?.email?.endsWith(internalRateLimitDomain)) {
+    const { success } = await internalRateLimiter.limit(sessionClaims?.email ?? req.ip ?? "127.0.0.1");
+    if (!success) {
+      return new Response(JSON.stringify({ message: "Too many requests" }), { status: 429 });
+    }
+  } else {
+    const { success } = await externalRateLimiter.limit(sessionClaims?.email ?? req.ip ?? "127.0.0.1");
+    if (!success) {
+      return new Response(JSON.stringify({ message: "Too many requests" }), { status: 429 });
+    }
   }
 
   const { modelId, messages, config } = (await req.json()) as {
