@@ -3,21 +3,33 @@ import { getRequestCost } from "@/lib/model/get-request-cost";
 import { TextModelConfig } from "@/lib/model/model-configs";
 import { TextModelId } from "@/lib/model/model.type";
 import { textModels } from "@/lib/model/models";
-import { ratelimit } from "@/lib/rate-limiter";
+import { externalRateLimiter, internalRateLimiter } from "@/lib/rate-limiter";
 import { ResponseMetrics } from "@/types/response-metrics.type";
 import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock";
 import { createOpenAI } from "@ai-sdk/openai";
+import { auth } from "@clerk/nextjs/server";
 import { Message, StreamData, streamText } from "ai";
 import { NextRequest } from "next/server";
 
 // IMPORTANT! Set the runtime to edge
 export const runtime = "edge";
 
-export async function POST(req: NextRequest) {
-  const { success } = await ratelimit.limit(req.ip ?? "127.0.0.1");
+const internalRateLimitDomain = process.env.INTERNAL_RATE_LIMIT_DOMAIN;
 
-  if (!success) {
-    return new Response(JSON.stringify({ message: "Too many requests" }), { status: 429 });
+export async function POST(req: NextRequest) {
+  const { sessionClaims } = auth();
+
+  // If the user is from the internal rate limit domain, we use a different rate limiter
+  if (internalRateLimitDomain && sessionClaims?.email?.endsWith(internalRateLimitDomain)) {
+    const { success } = await internalRateLimiter.limit(sessionClaims?.email ?? req.ip ?? "127.0.0.1");
+    if (!success) {
+      return new Response(JSON.stringify({ message: "Too many requests" }), { status: 429 });
+    }
+  } else {
+    const { success } = await externalRateLimiter.limit(sessionClaims?.email ?? req.ip ?? "127.0.0.1");
+    if (!success) {
+      return new Response(JSON.stringify({ message: "Too many requests" }), { status: 429 });
+    }
   }
 
   const { modelId, messages, config } = (await req.json()) as {
