@@ -89,6 +89,28 @@ export const titanTextPremierConfig: TextModelConfig = {
   },
 };
 
+export const novaConfig: TextModelConfig = {
+  systemPrompt: "",
+  maxTokens: {
+    value: 512,
+    min: 1,
+    max: 5000,
+    default: 512,
+  },
+  temperature: {
+    value: 0.7,
+    min: 0,
+    max: 1,
+    default: 0.7,
+  },
+  topP: {
+    value: 0.9,
+    min: 0,
+    max: 1,
+    default: 0.9,
+  },
+};
+
 export const anthropicClaudeDefaultConfig: TextModelConfig = {
   systemPrompt: "",
   maxTokens: {

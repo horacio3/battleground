@@ -13,7 +13,7 @@
     "@ai-sdk/amazon-bedrock": "^0.0.27",
     "@ai-sdk/openai": "^0.0.55",
     "@ai-sdk/react": "^0.0.54",
-    "@aws-sdk/client-bedrock": "^3.658.1",
+    "@aws-sdk/client-bedrock": "^3.705.0",
     "@aws-sdk/client-bedrock-agent": "^3.645.0",
     "@aws-sdk/client-bedrock-runtime": "^3.616.0",
     "@aws-sdk/client-polly": "^3.600.0",
