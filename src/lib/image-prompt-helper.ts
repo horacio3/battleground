@@ -21,6 +21,7 @@ export const getImageModelPrompt = ({ modelId, messages, config }: GetModelPromp
   switch (modelId) {
     case "amazon.titan-image-generator-v1":
     case "amazon.titan-image-generator-v2:0":
+    case "amazon.nova-canvas-v1:0":
       return {
         taskType: "TEXT_IMAGE",
         textToImageParams: {
@@ -46,6 +47,7 @@ export const getImageModelResponse = (modelId: ImageModelId, response: any) => {
   switch (modelId) {
     case "amazon.titan-image-generator-v1":
     case "amazon.titan-image-generator-v2:0":
+    case "amazon.nova-canvas-v1:0":
       return (response.images as []).map((imageData: any) => `![Image](data:image/png;base64,${imageData})`).join("\n");
     case "stability.stable-image-core-v1:0":
     case "stability.stable-image-ultra-v1:0":

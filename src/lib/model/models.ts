@@ -411,6 +411,13 @@ export const imageModels: ImageModel[] = [
     config: titanImageModelConfig,
   },
   {
+    provider: "Amazon",
+    id: "amazon.nova-canvas-v1:0",
+    name: "Nova Canvas",
+    inputModalities: ["TEXT"],
+    config: titanImageModelConfig,
+  },
+  {
     provider: "Stability AI",
     id: "stability.stable-image-core-v1:0",
     name: "Stable Image Core",

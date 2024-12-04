@@ -380,6 +380,53 @@ export const titanImageModelConfig: ModelConfig = [
   },
 ];
 
+export const novaCanvasModelConfig: ModelConfig = [
+  {
+    type: "number",
+    name: "numberOfImages",
+    label: "Number of Images",
+    value: "1",
+    min: 1,
+    max: 5,
+  },
+  {
+    type: "number",
+    name: "cfgScale",
+    label: "Config Scale",
+    description:
+      "Specifies how strongly the generated image should adhere to the prompt. Use a lower value to introduce more randomness in the generation.",
+    value: "8.0",
+    min: 1.1,
+    max: 10.0,
+  },
+  {
+    type: "number",
+    name: "height",
+    label: "Height",
+    value: "1024",
+    min: 320,
+    max: 1408,
+  },
+  {
+    type: "number",
+    name: "width",
+    label: "Width",
+    value: "1024",
+    min: 320,
+    max: 1408,
+  },
+  {
+    type: "number",
+    name: "seed",
+    label: "Seed",
+    description:
+      "Use to control and reproduce results. Determines the initial noise setting. Use the same seed and the same settings as a previous run to allow inference to create a similar image.",
+    value: "0",
+    min: 0,
+    max: 2147483646,
+  },
+];
+
 export const sdxlModelConfig: ModelConfig = [
   {
     type: "number",
