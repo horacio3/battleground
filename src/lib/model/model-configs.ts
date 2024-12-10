@@ -94,7 +94,7 @@ export const novaConfig: TextModelConfig = {
   maxTokens: {
     value: 512,
     min: 1,
-    max: 5000,
+    max: 5120,
     default: 512,
   },
   temperature: {
