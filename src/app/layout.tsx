@@ -21,8 +21,8 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
-        <body>
+      <html lang="en" className="overflow-hidden">
+        <body className="overflow-hidden">
           <QueryProvider>
             <ThemeProvider attribute="class" defaultTheme="light">
               <TooltipProvider delayDuration={0}>
