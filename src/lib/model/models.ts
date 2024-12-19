@@ -435,6 +435,14 @@ export const imageModels: ImageModel[] = [
   },
   {
     provider: "Stability AI",
+    id: "stability.sd3-5-large-v1:0",
+    name: "Stable Diffusion 3.5 Large",
+    inputModalities: ["TEXT"],
+    region: "us-west-2",
+    config: stabilityModelConfig,
+  },
+  {
+    provider: "Stability AI",
     id: "stability.stable-image-ultra-v1:0",
     name: "Stable Image Ultra",
     inputModalities: ["TEXT"],
