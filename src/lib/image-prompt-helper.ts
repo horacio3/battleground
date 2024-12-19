@@ -34,12 +34,15 @@ export const getImageModelPrompt = ({ modelId, messages, config }: GetModelPromp
     case "stability.stable-image-core-v1:0":
     case "stability.stable-image-ultra-v1:0":
     case "stability.sd3-large-v1:0":
+    case "stability.sd3-5-large-v1:0":
       return {
         prompt: messages.at(0)?.content,
         ...settings,
       };
-    default:
+    default: {
+      const _exhaustiveCheck: never = modelId;
       throw new Error("Model not found");
+    }
   }
 };
 
@@ -52,8 +55,11 @@ export const getImageModelResponse = (modelId: ImageModelId, response: any) => {
     case "stability.stable-image-core-v1:0":
     case "stability.stable-image-ultra-v1:0":
     case "stability.sd3-large-v1:0":
+    case "stability.sd3-5-large-v1:0":
       return `![Image](data:image/png;base64,${response.images[0]})`;
-    default:
+    default: {
+      const _exhaustiveCheck: never = modelId;
       throw new Error("Model not found");
+    }
   }
 };
