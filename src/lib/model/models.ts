@@ -287,6 +287,18 @@ export const textModels: TextModel[] = [
     systemPromptSupport: true,
   },
   {
+    provider: "Meta",
+    id: "us.meta.llama3-3-70b-instruct-v1:0",
+    name: "Llama 3.3 70B Instruct",
+    region: "us-west-2",
+    inputCostPerToken: 0.00072 / 1e3,
+    outputCostPerToken: 0.00072 / 1e3,
+    inputModalities: ["TEXT"],
+    outputModalities: ["TEXT"],
+    config: llamaDefaultModelConfig,
+    systemPromptSupport: true,
+  },
+  {
     provider: "Mistral",
     id: "mistral.mistral-7b-instruct-v0:2",
     name: "Mistral 7B Instruct",
