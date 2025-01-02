@@ -22,6 +22,7 @@ import {
   TrashIcon,
 } from "lucide-react";
 import Image from "next/image";
+import { useEffect } from "react";
 import ScrollToBottom from "react-scroll-to-bottom";
 import TextareaAutosize from "react-textarea-autosize";
 import { toast } from "sonner";
@@ -87,9 +88,6 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
     sendExtraMessageFields: true,
     streamProtocol: "data",
     initialMessages: chat.messages,
-    onFinish() {
-      setChatMessages(chat.id, messages);
-    },
     onError(error) {
       if ("message" in error) {
         const { message } = JSON.parse(error.message);
@@ -99,6 +97,13 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
       }
     },
   });
+
+  useEffect(() => {
+    if (messages.length > 0) {
+      console.log("setting chat messages", new Date().toISOString());
+      setChatMessages(chat.id, messages);
+    }
+  }, [chat.id, messages, setChatMessages]);
 
   useSub("chat-executed", () => {
     if (!chat.synced) return;
@@ -195,7 +200,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
         {messages.map((message, idx) => (
           <div
             key={message.id}
-            className={cn("flex flex-col gap-4 p-4", message.role === "user" ? "" : "bg-muted dark:bg-card")}
+            className={cn("flex flex-col gap-4 p-4", message.role === "user" ? "" : "bg-muted dark:bg-zinc-900")}
           >
             <div className="flex flex-row items-start gap-4">
               {message.role === "user" ? (
