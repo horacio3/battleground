@@ -7,7 +7,7 @@ const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)", "/api/
 export default clerkMiddleware(
   (auth, req) => {
     if (!isPublicRoute(req)) {
-      auth().protect();
+      auth.protect();
     }
   },
   { afterSignInUrl: "/chat", afterSignUpUrl: "/chat" },

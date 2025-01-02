@@ -8,6 +8,8 @@ import { auth } from "@clerk/nextjs/server";
 import { Message } from "ai/react";
 import { NextRequest } from "next/server";
 
+import { ipAddress } from "@vercel/functions";
+
 // IMPORTANT! Set the runtime to edge
 export const runtime = "edge";
 
@@ -16,16 +18,16 @@ const decoder = new TextDecoder();
 const internalRateLimitDomain = process.env.INTERNAL_RATE_LIMIT_DOMAIN;
 
 export async function POST(req: NextRequest) {
-  const { sessionClaims } = auth();
+  const { sessionClaims } = await auth();
 
   // If the user is from the internal rate limit domain, we use a different rate limiter
   if (internalRateLimitDomain && sessionClaims?.email?.endsWith(internalRateLimitDomain)) {
-    const { success } = await internalRateLimiter.limit(sessionClaims?.email ?? req.ip ?? "127.0.0.1");
+    const { success } = await internalRateLimiter.limit(sessionClaims?.email ?? ipAddress(req) ?? "127.0.0.1");
     if (!success) {
       return new Response(JSON.stringify({ message: "Too many requests" }), { status: 429 });
     }
   } else {
-    const { success } = await externalRateLimiter.limit(sessionClaims?.email ?? req.ip ?? "127.0.0.1");
+    const { success } = await externalRateLimiter.limit(sessionClaims?.email ?? ipAddress(req) ?? "127.0.0.1");
     if (!success) {
       return new Response(JSON.stringify({ message: "Too many requests" }), { status: 429 });
     }

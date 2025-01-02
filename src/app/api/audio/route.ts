@@ -12,7 +12,7 @@ const pollyClient = new PollyClient({
   },
 });
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   const { message, voiceId } = (await req.json()) as {
     voiceId: VoiceId;
     message: string;

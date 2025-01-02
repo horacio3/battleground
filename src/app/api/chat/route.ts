@@ -8,7 +8,7 @@ import { ResponseMetrics } from "@/types/response-metrics.type";
 import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock";
 import { createOpenAI } from "@ai-sdk/openai";
 import { auth } from "@clerk/nextjs/server";
-import { Message, StreamData, streamText } from "ai";
+import { createDataStreamResponse, Message, streamText } from "ai";
 import { NextRequest } from "next/server";
 
 // IMPORTANT! Set the runtime to edge
@@ -17,16 +17,20 @@ export const runtime = "edge";
 const internalRateLimitDomain = process.env.INTERNAL_RATE_LIMIT_DOMAIN;
 
 export async function POST(req: NextRequest) {
-  const { sessionClaims } = auth();
+  const { sessionClaims } = await auth();
+
+  if (!sessionClaims?.email) {
+    return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 });
+  }
 
   // If the user is from the internal rate limit domain, we use a different rate limiter
   if (internalRateLimitDomain && sessionClaims?.email?.endsWith(internalRateLimitDomain)) {
-    const { success } = await internalRateLimiter.limit(sessionClaims?.email ?? req.ip ?? "127.0.0.1");
+    const { success } = await internalRateLimiter.limit(sessionClaims.email);
     if (!success) {
       return new Response(JSON.stringify({ message: "Too many requests" }), { status: 429 });
     }
   } else {
-    const { success } = await externalRateLimiter.limit(sessionClaims?.email ?? req.ip ?? "127.0.0.1");
+    const { success } = await externalRateLimiter.limit(sessionClaims.email);
     if (!success) {
       return new Response(JSON.stringify({ message: "Too many requests" }), { status: 429 });
     }
@@ -59,36 +63,38 @@ export async function POST(req: NextRequest) {
             })(modelId);
 
     let firstTokenTime: number = NaN;
-    const data = new StreamData();
     const start = Date.now();
 
-    const result = await streamText({
-      model,
-      system: modelInfo?.systemPromptSupport ? config?.systemPrompt : undefined,
-      messages: convertAiMessagesToCoreMessages(messages),
-      maxTokens: config?.maxTokens.value,
-      temperature: config?.temperature.value,
-      topP: config?.topP.value,
-      onChunk: () => {
-        if (!firstTokenTime) {
-          firstTokenTime = Date.now() - start;
-        }
-      },
-      onFinish: (e) => {
-        const inputTokens = e.usage.promptTokens ?? NaN;
-        const outputTokens = e.usage.completionTokens ?? NaN;
-        data.append({
-          firstTokenTime,
-          responseTime: Date.now() - start,
-          inputTokens,
-          outputTokens,
-          cost: getRequestCost({ modelId, inputTokens, outputTokens }),
-        } satisfies ResponseMetrics);
-        data.close();
+    return createDataStreamResponse({
+      execute: (dataStream) => {
+        const result = streamText({
+          model,
+          system: modelInfo?.systemPromptSupport ? config?.systemPrompt : undefined,
+          messages: convertAiMessagesToCoreMessages(messages),
+          maxTokens: config?.maxTokens.value,
+          temperature: config?.temperature.value,
+          topP: config?.topP.value,
+          onChunk: () => {
+            if (!firstTokenTime) {
+              firstTokenTime = Date.now() - start;
+            }
+          },
+          onFinish: (e) => {
+            const inputTokens = e.usage.promptTokens ?? NaN;
+            const outputTokens = e.usage.completionTokens ?? NaN;
+            dataStream.writeMessageAnnotation({
+              firstTokenTime,
+              responseTime: Date.now() - start,
+              inputTokens,
+              outputTokens,
+              cost: getRequestCost({ modelId, inputTokens, outputTokens }),
+            } satisfies ResponseMetrics);
+          },
+        });
+
+        result.mergeIntoDataStream(dataStream);
       },
     });
-
-    return result.toDataStreamResponse({ data });
   } catch (err: any) {
     console.error("ERROR", err);
     return Response.json({ message: err.message }, { status: err.httpStatusCode ?? 500 });
