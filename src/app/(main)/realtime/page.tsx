@@ -11,7 +11,7 @@ export default function Realtime() {
   const { isSessionActive, handleStartStopClick, status } = useWebRTCAudioSession(voice);
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-12">
+    <div className="flex flex-1 flex-col items-center justify-center gap-12 bg-background">
       <h1 className="text-xl font-light tracking-wide text-gray-400">Speak to OpenAI real-time API</h1>
       <ListeningAnimation isListening={isSessionActive} status={status} onClick={handleStartStopClick} />
       <VoiceSelector disabled={isSessionActive} selectedVoice={voice} onVoiceChange={setVoice} />
