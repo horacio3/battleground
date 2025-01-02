@@ -11,6 +11,8 @@ export default function Chat() {
   const isLoaded = useChatStoreHydrated();
 
   useChatStore.subscribe((state) => {
+    if (!isLoaded) return;
+
     if (state.chats.length !== chats.length) {
       setChats(state.chats);
       return;
@@ -26,7 +28,7 @@ export default function Chat() {
   });
 
   return (
-    <main className="">
+    <main className="flex min-h-0 flex-1 flex-col">
       <div className="px-2 pt-2">
         <ChatToolbar />
       </div>

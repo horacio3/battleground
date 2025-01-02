@@ -31,10 +31,10 @@ export const MetricsChartPopoverButton = () => {
   const chats = useChatStore((state) => state.chats);
 
   const chartData = chats.map((chat) => {
-    const assistantMessages = chat.messages?.filter((m) => m.role === "assistant") ?? [];
+    const assistantMessages = chat.messages?.filter((m) => m.role === "assistant" && m.annotations?.length) ?? [];
 
     const metricsData = assistantMessages
-      .map((m) => m.data as ResponseMetrics)
+      .map((m) => m.annotations?.[0] as ResponseMetrics)
       .map(
         (m) =>
           ({

@@ -44,6 +44,7 @@ export type TextModelId =
   | "us.meta.llama3-2-3b-instruct-v1:0"
   | "us.meta.llama3-2-11b-instruct-v1:0"
   | "us.meta.llama3-2-90b-instruct-v1:0"
+  | "us.meta.llama3-3-70b-instruct-v1:0"
   | "mistral.mistral-7b-instruct-v0:2"
   | "mistral.mixtral-8x7b-instruct-v0:1"
   | "mistral.mistral-large-2407-v1:0"
@@ -61,6 +62,7 @@ export type ImageModelId =
   | "amazon.nova-canvas-v1:0"
   | "stability.stable-image-core-v1:0"
   | "stability.sd3-large-v1:0"
+  | "stability.sd3-5-large-v1:0"
   | "stability.stable-image-ultra-v1:0";
 
 export interface BaseModel {

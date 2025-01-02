@@ -1,4 +1,5 @@
-"use client";
+"use client";;
+import { use } from "react";
 
 import { PromptEditorComponent } from "@/components/prompt-editor";
 import { PromptEvaluator } from "@/components/prompt-evaluator";
@@ -7,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function PromptEditor({ params }: { params: { slug?: string[] } }) {
+export default function PromptEditor(props: { params: Promise<{ slug?: string[] }> }) {
+  const params = use(props.params);
   const id = params.slug?.[0];
   const router = useRouter();
   const searchParams = useSearchParams();

@@ -1,4 +1,6 @@
 export const getProviderIcon = (provider?: string): string => {
+  console.log("provider", provider);
+
   switch (provider) {
     case "Anthropic":
       return "/anthropic.png";
