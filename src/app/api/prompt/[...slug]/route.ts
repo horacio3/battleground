@@ -20,7 +20,8 @@ const client = new BedrockAgentClient({
 });
 
 // get prompt by id and version
-export async function GET(_: NextRequest, { params }: { params: { slug: string[] } }) {
+export async function GET(_: NextRequest, props: { params: Promise<{ slug: string[] }> }) {
+  const params = await props.params;
   const [id] = params.slug;
   const response = await client.send(new GetPromptCommand({ promptIdentifier: id }));
   return NextResponse.json(response);
@@ -74,7 +75,8 @@ export async function POST(req: Request) {
   }
 }
 
-export async function PUT(req: Request, { params }: { params: { slug: string[] } }) {
+export async function PUT(req: Request, props: { params: Promise<{ slug: string[] }> }) {
+  const params = await props.params;
   const [id] = params.slug;
 
   try {
@@ -122,7 +124,8 @@ export async function PUT(req: Request, { params }: { params: { slug: string[] }
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { slug: string[] } }) {
+export async function DELETE(_: Request, props: { params: Promise<{ slug: string[] }> }) {
+  const params = await props.params;
   const [id] = params.slug;
 
   try {

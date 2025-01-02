@@ -14,7 +14,6 @@ import {
   Activity,
   EllipsisIcon,
   ImagePlus,
-  Loader2,
   Paperclip,
   PlusIcon,
   RefreshCcwIcon,
@@ -23,12 +22,10 @@ import {
   TrashIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
 import ScrollToBottom from "react-scroll-to-bottom";
 import TextareaAutosize from "react-textarea-autosize";
 import { toast } from "sonner";
 import { useFilePicker } from "use-file-picker";
-import { useDebounceValue } from "usehooks-ts";
 import { ChatConfig } from "./chat-config";
 import { ChatMessageButtons } from "./chat-message-buttons";
 import { ImageChip } from "./image-chip";
@@ -38,6 +35,7 @@ import { MetricsDisplay } from "./metrics-display";
 import { MicToggle } from "./mic-toggle";
 import { ModelSelect } from "./model-select";
 import { SyncButton } from "./sync-button";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -63,9 +61,11 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
   const setChatInput = useChatStore((state) => state.setChatInput);
   const resetChat = useChatStore((state) => state.resetChat);
   const setChatMessages = useChatStore((state) => state.setChatMessages);
-  const [updateData, setUpdateData] = useState(false);
 
   const { user } = useUser();
+
+  const userInitials = `${user?.firstName?.charAt(0) ?? ""}${user?.lastName?.charAt(0) ?? ""}`;
+
   const { openFilePicker } = useFilePicker({
     multiple: true,
     accept: "image/*",
@@ -77,8 +77,9 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
     },
   });
 
-  const { messages, append, isLoading, data, setMessages } = useChat({
+  const { messages, append, isLoading } = useChat({
     id: chat.id,
+    experimental_throttle: 100,
     body: {
       modelId: chat.model.id,
       config: chat.model.config,
@@ -87,7 +88,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
     streamProtocol: "data",
     initialMessages: chat.messages,
     onFinish() {
-      setUpdateData(true);
+      setChatMessages(chat.id, messages);
     },
     onError(error) {
       if ("message" in error) {
@@ -98,22 +99,6 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
       }
     },
   });
-
-  // update assistant messages with data if available
-  useEffect(() => {
-    if (!data || !updateData) return;
-    const lastAssistantMessageIndex = messages.filter((m) => m.role === "assistant").length - 1;
-    if (!data?.at(lastAssistantMessageIndex)) return;
-    let currAssistantMessageIdx = 0;
-    const updatedMessages = messages.map((message) => {
-      if (message.role !== "assistant") return message;
-      return { ...message, data: data.at(currAssistantMessageIdx++) };
-    });
-    setMessages(updatedMessages);
-    // we only need to store these to generate the metrics chart
-    setChatMessages(chat.id, updatedMessages);
-    setUpdateData(false);
-  }, [updateData, data, setMessages, setChatMessages, messages, chat.id]);
 
   useSub("chat-executed", () => {
     if (!chat.synced) return;
@@ -131,8 +116,10 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
   };
 
   let chatMetrics: ResponseMetrics | undefined;
-  if (data && data.length > 0) {
-    chatMetrics = (data as ResponseMetrics[])?.reduce(
+  chatMetrics = messages
+    .filter((m) => m.role === "assistant" && m.annotations?.length)
+    .map((m) => m.annotations?.[0] as ResponseMetrics)
+    .reduce(
       (acc, curr) => {
         return {
           inputTokens: acc.inputTokens + curr.inputTokens,
@@ -144,13 +131,8 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
       },
       { inputTokens: 0, outputTokens: 0, cost: 0, firstTokenTime: 0, responseTime: 0 } satisfies ResponseMetrics,
     );
-  }
-
-  const [debouncedMessages] = useDebounceValue(messages, 500, { maxWait: 500 });
 
   const hasChatMetrics = !!chatMetrics?.inputTokens || !!chatMetrics?.outputTokens || !!chatMetrics?.cost;
-
-  const lastMessageIndex = debouncedMessages.length - 1;
 
   return (
     <div className="min-width-[465px] relative flex flex-1 flex-col rounded-md border">
@@ -210,25 +192,34 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
       </div>
 
       <ScrollToBottom className={cn("flex flex-1 overflow-y-auto")}>
-        {debouncedMessages.map((message, idx) => (
+        {messages.map((message, idx) => (
           <div
             key={message.id}
             className={cn("flex flex-col gap-4 p-4", message.role === "user" ? "" : "bg-muted dark:bg-card")}
           >
             <div className="flex flex-row items-start gap-4">
-              <Image
-                src={message.role === "user" ? user?.imageUrl ?? "" : getProviderIcon(chat.model.provider)}
-                alt={chat.model.provider}
-                width={24}
-                height={24}
-                className={cn(message.role === "user" ? "rounded-full" : "rounded-sm")}
-              />
+              {message.role === "user" ? (
+                <Avatar className="size-6">
+                  {user?.imageUrl ? (
+                    <AvatarImage src={user?.imageUrl} />
+                  ) : (
+                    <AvatarFallback>{userInitials}</AvatarFallback>
+                  )}
+                </Avatar>
+              ) : (
+                <Image
+                  src={getProviderIcon(chat.model.provider)}
+                  alt={chat.model.provider}
+                  width={24}
+                  height={24}
+                  className="rounded-sm"
+                />
+              )}
               <MemoizedMarkdown response={message.content} className="flex-1 p-0.5" />
               <div className="flex flex-row gap-1">
                 <ChatMessageButtons message={message.content} />
               </div>
             </div>
-            {isLoading && lastMessageIndex === idx && <Loader2 className="ml-11 size-3 animate-spin" />}
 
             {(message.role === "user" && (message.data as any))?.images?.length > 0 && (
               <div className="flex flex-row flex-wrap items-center gap-1">
@@ -238,7 +229,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                 ))}
               </div>
             )}
-            {message.role === "assistant" && message.data && (
+            {message.role === "assistant" && message.annotations?.length && (
               <div className="flex flex-row items-start gap-1">
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -247,7 +238,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                   <TooltipContent>Response Metrics</TooltipContent>
                 </Tooltip>
                 <div className="flex flex-wrap gap-x-1 gap-y-2">
-                  <MetricsDisplay {...(message.data as ResponseMetrics)} />
+                  <MetricsDisplay {...(message.annotations?.[0] as ResponseMetrics)} />
                 </div>
               </div>
             )}
