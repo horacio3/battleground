@@ -13,7 +13,7 @@ export function ChatToolbar() {
     const assistantMessages = chat.messages?.filter((m) => m.role === "assistant") ?? [];
 
     return assistantMessages.map((m) => {
-      const metrics = m.data as ResponseMetrics;
+      const metrics = m.annotations?.[0] as ResponseMetrics;
 
       const params = {
         systemPrompt: chat.model.config?.systemPrompt ?? "",

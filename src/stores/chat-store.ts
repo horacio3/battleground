@@ -219,7 +219,7 @@ export const useChatStore = create<ChatStoreState>()(
     {
       name: "chat-store",
       storage: createJSONStorage(() => localStorage),
-      version: 1,
+      version: 2,
       // don't store messages or attachments in local storage
       partialize: (state) => {
         return {
