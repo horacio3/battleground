@@ -32,7 +32,7 @@ export default function Chat() {
       <div className="px-2 pt-2">
         <ChatToolbar />
       </div>
-      <div className="flex flex-1 flex-row gap-2 overflow-x-auto overflow-y-hidden p-2">
+      <div className="flex max-h-[calc(100vh-56px)] max-w-[calc(100vw-var(--sidebar-width))] flex-1 flex-row gap-2 overflow-x-auto p-2">
         {isLoaded ? (
           chats.map((chat) => <ChatPanel key={chat.id} chatId={chat.id} />)
         ) : (

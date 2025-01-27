@@ -13,7 +13,6 @@ import { TooltipArrow } from "@radix-ui/react-tooltip";
 import {
   Activity,
   EllipsisIcon,
-  ImagePlus,
   Paperclip,
   PlusIcon,
   RefreshCcwIcon,
@@ -270,9 +269,9 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
         <div className="rounded-md border bg-background p-2 focus-within:border-ring">
           <TextareaAutosize
             maxRows={12}
-            minRows={1}
+            minRows={2}
             placeholder="Send a message"
-            className="w-full resize-none bg-transparent text-sm font-light focus:outline-none "
+            className="w-full resize-none bg-transparent text-sm font-light focus:outline-none"
             value={chat.input}
             onChange={(e) => setChatInput(chat.id, e.target.value)}
             onKeyDown={(e) => {
@@ -285,6 +284,16 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
           />
           <div className="flex flex-row items-start justify-between gap-4">
             <div className="mt-2 flex flex-row flex-wrap gap-1">
+              {chat.model.inputModalities.includes("IMAGE") && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 focus:ring-transparent"
+                  onClick={() => openFilePicker()}
+                >
+                  <Paperclip className="h-4 w-4" />
+                </Button>
+              )}
               {chat.attachments.map((image) => (
                 <ImageChip
                   key={image.name}
@@ -295,16 +304,6 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
               ))}
             </div>
             <div className="flex flex-row items-center gap-2">
-              {chat.model.inputModalities.includes("IMAGE") && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 focus:ring-transparent"
-                  onClick={() => openFilePicker()}
-                >
-                  <ImagePlus className="h-4 w-4" />
-                </Button>
-              )}
               <MicToggle
                 sourceId={chat.id}
                 onTranscript={(transcript) => {
