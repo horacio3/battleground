@@ -16,7 +16,7 @@ import {
   titanTextLiteConfig,
   titanTextPremierConfig,
 } from "./model-configs";
-import { ImageModel, TextModel } from "./model.type";
+import { ImageModel, TextModel, VideoModel } from "./model.type";
 
 export const textModels: TextModel[] = [
   {
@@ -105,8 +105,8 @@ export const textModels: TextModel[] = [
     id: "anthropic.claude-3-5-haiku-20241022-v1:0",
     name: "Claude 3.5 Haiku",
     region: "us-west-2",
-    inputCostPerToken: 0.001 / 1e3,
-    outputCostPerToken: 0.005 / 1e3,
+    inputCostPerToken: 0.0008 / 1e3,
+    outputCostPerToken: 0.0004 / 1e3,
     inputModalities: ["TEXT"],
     outputModalities: ["TEXT"],
     config: anthropicClaudeDefaultConfig,
@@ -219,8 +219,8 @@ export const textModels: TextModel[] = [
     id: "meta.llama3-1-70b-instruct-v1:0",
     name: "Llama 3.1 70B Instruct",
     region: "us-west-2",
-    inputCostPerToken: 0.00099 / 1e3,
-    outputCostPerToken: 0.00099 / 1e3,
+    inputCostPerToken: 0.00072 / 1e3,
+    outputCostPerToken: 0.00072 / 1e3,
     inputModalities: ["TEXT"],
     outputModalities: ["TEXT"],
     config: llamaDefaultModelConfig,
@@ -231,8 +231,8 @@ export const textModels: TextModel[] = [
     id: "meta.llama3-1-405b-instruct-v1:0",
     name: "Llama 3.1 405B Instruct",
     region: "us-west-2",
-    inputCostPerToken: 0.00532 / 1e3,
-    outputCostPerToken: 0.016 / 1e3,
+    inputCostPerToken: 0.0024 / 1e3,
+    outputCostPerToken: 0.0024 / 1e3,
     inputModalities: ["TEXT"],
     outputModalities: ["TEXT"],
     config: llamaDefaultModelConfig,
@@ -267,8 +267,8 @@ export const textModels: TextModel[] = [
     id: "us.meta.llama3-2-11b-instruct-v1:0",
     name: "Llama 3.2 11B Instruct",
     region: "us-west-2",
-    inputCostPerToken: 0.00035 / 1e3,
-    outputCostPerToken: 0.00035 / 1e3,
+    inputCostPerToken: 0.00016 / 1e3,
+    outputCostPerToken: 0.00016 / 1e3,
     inputModalities: ["TEXT", "IMAGE"],
     outputModalities: ["TEXT"],
     config: llamaDefaultModelConfig,
@@ -279,8 +279,8 @@ export const textModels: TextModel[] = [
     id: "us.meta.llama3-2-90b-instruct-v1:0",
     name: "Llama 3.2 90B Instruct",
     region: "us-west-2",
-    inputCostPerToken: 0.002 / 1e3,
-    outputCostPerToken: 0.002 / 1e3,
+    inputCostPerToken: 0.00072 / 1e3,
+    outputCostPerToken: 0.00072 / 1e3,
     inputModalities: ["TEXT", "IMAGE"],
     outputModalities: ["TEXT"],
     config: llamaDefaultModelConfig,
@@ -325,8 +325,8 @@ export const textModels: TextModel[] = [
     id: "mistral.mistral-large-2407-v1:0",
     name: "Mistral Large v2",
     region: "us-west-2",
-    inputCostPerToken: 0.003 / 1e3,
-    outputCostPerToken: 0.009 / 1e3,
+    inputCostPerToken: 0.002 / 1e3,
+    outputCostPerToken: 0.006 / 1e3,
     inputModalities: ["TEXT"],
     outputModalities: ["TEXT"],
     config: mistralLargeConfig,
@@ -354,8 +354,8 @@ export const textModels: TextModel[] = [
     provider: "OpenAI",
     id: "gpt-4o",
     name: "GPT 4o",
-    inputCostPerToken: 0.005 / 1e3,
-    outputCostPerToken: 0.015 / 1e3,
+    inputCostPerToken: 0.0025 / 1e3,
+    outputCostPerToken: 0.01 / 1e3,
     inputModalities: ["TEXT", "IMAGE"],
     outputModalities: ["TEXT"],
     config: openAiGpt4oConfig,
@@ -460,5 +460,15 @@ export const imageModels: ImageModel[] = [
     inputModalities: ["TEXT"],
     region: "us-west-2",
     config: stabilityModelConfig,
+  },
+];
+
+export const videoModels: VideoModel[] = [
+  {
+    provider: "Amazon",
+    id: "amazon.nova-reel-v1:0",
+    name: "Nova Reel",
+    region: "us-west-2",
+    costPerSecond: 0.08,
   },
 ];

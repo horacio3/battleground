@@ -65,17 +65,17 @@ export type ImageModelId =
   | "stability.sd3-5-large-v1:0"
   | "stability.stable-image-ultra-v1:0";
 
+export type VideoModelId = "amazon.nova-reel-v1:0";
+
 export interface BaseModel {
   provider: Provider;
   name: string;
   id: string;
+  region?: "us-east-1" | "us-west-2" | (string & {});
 }
 
 export type TextModel = BaseModel & {
   id: TextModelId;
-  name: string;
-  provider: Provider;
-  region?: "us-east-1" | "us-west-2" | (string & {});
   inputCostPerToken?: number;
   outputCostPerToken?: number;
   inputModalities: ModelModality[];
@@ -86,10 +86,13 @@ export type TextModel = BaseModel & {
 
 export type ImageModel = BaseModel & {
   id: ImageModelId;
-  name: string;
-  provider: Provider;
-  region?: "us-east-1" | "us-west-2" | (string & {});
   description?: string;
   inputModalities: ModelModality[];
+  costPerImage?: number;
   config: ModelConfig;
+};
+
+export type VideoModel = BaseModel & {
+  id: VideoModelId;
+  costPerSecond?: number;
 };
