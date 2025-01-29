@@ -6,6 +6,7 @@ import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { SettingsButton } from "./settings-button";
 
 export type NavLink = {
   title: string;
@@ -31,6 +32,11 @@ export function NavMain({ items }: { items: NavLink[] }) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         ))}
+        <SidebarMenuItem key="settings">
+          <SidebarMenuButton tooltip="Settings" asChild>
+            <SettingsButton />
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </SidebarMenu>
     </SidebarGroup>
   );

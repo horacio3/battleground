@@ -20,13 +20,13 @@ export function SettingsButton() {
       <Tooltip>
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Settings className="size-5 rotate-0 scale-100 transition-all" />
+            <Button variant="ghost" size="xsicon">
+              <Settings className="size-4 rotate-0 scale-100 transition-all" />
               <span className="sr-only">Open Settings</span>
             </Button>
           </PopoverTrigger>
         </TooltipTrigger>
-        <TooltipContent side="right" sideOffset={5} className="invert">
+        <TooltipContent side="right" sideOffset={5}>
           Settings
         </TooltipContent>
       </Tooltip>

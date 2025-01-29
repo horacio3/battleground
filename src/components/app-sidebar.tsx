@@ -1,6 +1,6 @@
 "use client";
 
-import { AudioLines, Edit, GithubIcon, Image, MessageCircle, Settings2, Video } from "lucide-react";
+import { AudioLines, Edit, GithubIcon, Image, MessageCircle, Video } from "lucide-react";
 import * as React from "react";
 
 import { NavLink, NavMain } from "@/components/nav-main";
@@ -42,11 +42,6 @@ const navItems: NavLink[] = [
     title: "Realtime",
     url: "/realtime",
     icon: AudioLines,
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings2,
   },
 ];
 
