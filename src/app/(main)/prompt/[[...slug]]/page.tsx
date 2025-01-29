@@ -1,4 +1,4 @@
-"use client";;
+"use client";
 import { use } from "react";
 
 import { PromptEditorComponent } from "@/components/prompt-editor";
@@ -20,7 +20,7 @@ export default function PromptEditor(props: { params: Promise<{ slug?: string[] 
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="flex w-full flex-1 flex-row overflow-hidden">
         <PromptSidebar />
-        <div className="flex h-full flex-1 flex-col overflow-hidden ">
+        <div className="flex h-full flex-1 flex-col overflow-hidden">
           <Tabs value={tab} className="flex h-full flex-col">
             <div className="flex flex-row justify-center gap-1 border-b py-2">
               <div className="space-x-1 rounded-full bg-muted p-1">

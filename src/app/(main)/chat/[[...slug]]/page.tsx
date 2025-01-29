@@ -1,7 +1,6 @@
 "use client";
 
 import { ChatPanel } from "@/components/chat-panel";
-import { ChatToolbar } from "@/components/chat-toolbar";
 import { useChatStore, useChatStoreHydrated } from "@/stores/chat-store";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
@@ -29,10 +28,7 @@ export default function Chat() {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col">
-      <div className="px-2 pt-2">
-        <ChatToolbar />
-      </div>
-      <div className="flex max-h-[calc(100vh-56px)] max-w-[calc(100vw-var(--sidebar-width))] flex-1 flex-row gap-2 overflow-x-auto p-2">
+      <div className="flex max-h-lvh max-w-full flex-1 flex-row gap-2 overflow-x-auto p-2">
         {isLoaded ? (
           chats.map((chat) => <ChatPanel key={chat.id} chatId={chat.id} />)
         ) : (

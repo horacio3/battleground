@@ -468,7 +468,6 @@ export const videoModels: VideoModel[] = [
     provider: "Amazon",
     id: "amazon.nova-reel-v1:0",
     name: "Nova Reel",
-    region: "us-west-2",
     costPerSecond: 0.08,
   },
 ];

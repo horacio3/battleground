@@ -33,35 +33,32 @@ export function ChatToolbar() {
   });
 
   return (
-    <>
-      <Menubar className="bg-muted dark:bg-background">
-        <MenubarMenu>
-          <MenubarTrigger className="text-xs">Models</MenubarTrigger>
-          <MenubarContent className="*:!text-xs">
-            <MenubarItem onClick={() => addChat()}>
-              <Plus className="mr-2 size-4" />
-              Add Model
-            </MenubarItem>
-            <MenubarSeparator />
-            <MenubarItem onClick={() => resetChats()}>
-              <RefreshCcw className="mr-2 size-4" />
-              Clear Chats
-            </MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
-
-        <MenubarMenu>
-          <MenubarTrigger className="text-xs">Compare</MenubarTrigger>
-          <MenubarContent className="*:!text-xs">
-            <MenubarItem>
-              <CSVLink data={csvData} filename="results.csv" className="flex items-center">
-                <Sheet className="mr-2 h-4 w-4" />
-                Export Results
-              </CSVLink>
-            </MenubarItem>
-          </MenubarContent>
-        </MenubarMenu>
-      </Menubar>
-    </>
+    <Menubar className="rounded-none border-x-0 border-b border-t-0 dark:bg-background">
+      <MenubarMenu>
+        <MenubarTrigger className="text-xs">Models</MenubarTrigger>
+        <MenubarContent className="*:!text-xs">
+          <MenubarItem onClick={() => addChat()}>
+            <Plus className="mr-2 size-4" />
+            Add Model
+          </MenubarItem>
+          <MenubarSeparator />
+          <MenubarItem onClick={() => resetChats()}>
+            <RefreshCcw className="mr-2 size-4" />
+            Clear Chats
+          </MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+      <MenubarMenu>
+        <MenubarTrigger className="text-xs">Compare</MenubarTrigger>
+        <MenubarContent className="*:!text-xs">
+          <MenubarItem>
+            <CSVLink data={csvData} filename="results.csv" className="flex items-center">
+              <Sheet className="mr-2 h-4 w-4" />
+              Export Results
+            </CSVLink>
+          </MenubarItem>
+        </MenubarContent>
+      </MenubarMenu>
+    </Menubar>
   );
 }

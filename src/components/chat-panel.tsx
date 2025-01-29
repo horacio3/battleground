@@ -12,6 +12,7 @@ import { useUser } from "@clerk/nextjs";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
 import {
   Activity,
+  CircleX,
   EllipsisIcon,
   Paperclip,
   PlusIcon,
@@ -32,6 +33,7 @@ import { ImageChip } from "./image-chip";
 import { MemoizedMarkdown } from "./markdown";
 import { MetricsChartPopoverButton } from "./metrics-chart-popover";
 import { MetricsDisplay } from "./metrics-display";
+import { MetricsExportButton } from "./metrics-export-button";
 import { MicToggle } from "./mic-toggle";
 import { ModelSelect } from "./model-select";
 import { SyncButton } from "./sync-button";
@@ -60,6 +62,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
   const removeAttachmentFromChat = useChatStore((state) => state.removeAttachmentFromChat);
   const setChatInput = useChatStore((state) => state.setChatInput);
   const resetChat = useChatStore((state) => state.resetChat);
+  const resetChats = useChatStore((state) => state.resetChats);
   const setChatMessages = useChatStore((state) => state.setChatMessages);
 
   const { user } = useUser();
@@ -168,7 +171,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                 <PlusIcon />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom" className="dark text-xs dark:invert">
+            <TooltipContent side="bottom" className="text-xs">
               Add model for comparison
               <TooltipArrow />
             </TooltipContent>
@@ -183,6 +186,11 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
               <DropdownMenuItem onClick={() => resetChat(chat.id)}>
                 <RefreshCcwIcon className="mr-2 h-4 w-4" />
                 Clear Chat
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => resetChats()}>
+                <CircleX className="mr-2 h-4 w-4" />
+                Clear All
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
@@ -239,7 +247,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                   <TooltipTrigger asChild>
                     <Activity className="mr-2 mt-1 h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
-                  <TooltipContent>Response Metrics</TooltipContent>
+                  <TooltipContent className="text-xs">Response Metrics</TooltipContent>
                 </Tooltip>
                 <div className="flex flex-wrap gap-x-1 gap-y-2">
                   <MetricsDisplay {...(message.annotations?.[0] as ResponseMetrics)} />
@@ -257,10 +265,11 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
               <TooltipTrigger asChild>
                 <Sigma className="mr-2 h-4 w-4 text-muted-foreground" />
               </TooltipTrigger>
-              <TooltipContent>Total Chat Metrics</TooltipContent>
+              <TooltipContent className="text-xs">Total Chat Metrics</TooltipContent>
             </Tooltip>
             <MetricsDisplay {...chatMetrics} />
             <div className="ml-auto">
+              <MetricsExportButton />
               <MetricsChartPopoverButton />
             </div>
           </div>

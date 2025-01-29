@@ -23,7 +23,7 @@ export const SyncButton = ({ synced, onClick }: SyncButtonProps) => {
             {synced ? <ToggleRight /> : <ToggleLeft />}
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="dark text-xs dark:invert">
+        <TooltipContent side="bottom" className="text-xs">
           Sync chat messages with other models
           <TooltipArrow />
         </TooltipContent>

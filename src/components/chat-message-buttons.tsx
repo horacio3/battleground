@@ -80,7 +80,7 @@ export const ChatMessageButtons = ({ message }: { message: string }) => {
             <Copy className="size-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="dark text-xs dark:invert">
+        <TooltipContent side="bottom" className="text-xs">
           Copy message
         </TooltipContent>
       </Tooltip>
@@ -96,7 +96,7 @@ export const ChatMessageButtons = ({ message }: { message: string }) => {
             {audioLoading ? <Loader className="size-4 animate-spin" /> : <PlayIcon className="size-4" />}
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="dark text-xs dark:invert">
+        <TooltipContent side="bottom" className="text-xs">
           Play audio
         </TooltipContent>
       </Tooltip>
@@ -117,7 +117,7 @@ export const ChatMessageButtons = ({ message }: { message: string }) => {
             <Pause className="size-4" />
           </Button>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="dark text-xs dark:invert">
+        <TooltipContent side="bottom" className="text-xs">
           Pause audio
         </TooltipContent>
       </Tooltip>

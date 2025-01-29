@@ -8,4 +8,5 @@
   "files.exclude": {
     "**/.next": true
   },
+  "typescript.tsdk": "node_modules/typescript/lib",
 }

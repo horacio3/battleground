@@ -106,7 +106,7 @@ export const ModelConfigButton = ({ model, setModel }: ModelConfigButtonProps) =
             </Button>
           </TooltipTrigger>
         </PopoverTrigger>
-        <TooltipContent side="bottom" className="dark text-xs dark:invert">
+        <TooltipContent side="bottom" className="text-xs">
           Configure inference parameters
           <TooltipArrow />
         </TooltipContent>

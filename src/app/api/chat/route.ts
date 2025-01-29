@@ -57,9 +57,13 @@ export async function POST(req: NextRequest) {
               apiKey: process.env.OPENAI_API_KEY ?? "",
             })(modelId)
           : createAmazonBedrock({
-              region: modelInfo?.region ?? process.env.AWS_REGION ?? "us-east-1",
-              accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID ?? "",
-              secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY ?? "",
+              bedrockOptions: {
+                region: modelInfo?.region ?? process.env.AWS_REGION ?? "us-east-1",
+                credentials: {
+                  accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID ?? "",
+                  secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY ?? "",
+                },
+              },
             })(modelId);
 
     let firstTokenTime: number = NaN;
@@ -93,6 +97,10 @@ export async function POST(req: NextRequest) {
         });
 
         result.mergeIntoDataStream(dataStream);
+      },
+      onError: (err) => {
+        console.error("ERROR", err);
+        return "error";
       },
     });
   } catch (err: any) {

@@ -2,7 +2,7 @@ import { useSub } from "@/lib/events";
 import { imageModels } from "@/lib/model/models";
 import { useImageStore } from "@/stores/image-store";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
-import { EllipsisIcon, Loader2, PlusIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
+import { CircleX, EllipsisIcon, Loader2, PlusIcon, RefreshCcwIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { MemoizedMarkdown } from "./markdown";
@@ -24,7 +24,7 @@ export const ImagePanel = ({ id }: { id: string }) => {
   const removeResults = useImageStore((state) => state.removeResults);
   const setModel = useImageStore((state) => state.setModel);
   const setResultsOutput = useImageStore((state) => state.setResultsOutput);
-
+  const resetResults = useImageStore((state) => state.clearResults);
   const [loading, setLoading] = useState(false);
 
   useSub("image-executed", (prompt) => {
@@ -70,7 +70,7 @@ export const ImagePanel = ({ id }: { id: string }) => {
                 <PlusIcon />
               </Button>
             </TooltipTrigger>
-            <TooltipContent side="bottom" className="dark text-xs dark:invert">
+            <TooltipContent side="bottom" className="text-xs">
               Add model for comparison
               <TooltipArrow />
             </TooltipContent>
@@ -85,6 +85,11 @@ export const ImagePanel = ({ id }: { id: string }) => {
               <DropdownMenuItem onClick={() => setResultsOutput(result.id, "")}>
                 <RefreshCcwIcon className="mr-2 h-4 w-4" />
                 Clear Chat
+              </DropdownMenuItem>
+
+              <DropdownMenuItem onClick={() => resetResults()}>
+                <CircleX className="mr-2 h-4 w-4" />
+                Clear All
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />

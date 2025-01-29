@@ -63,7 +63,7 @@ export const MetricsChartPopoverButton = () => {
   const zDomain = [Math.min(...chartData.map((m) => m.totalTokens)), Math.max(...chartData.map((m) => m.totalTokens))];
 
   return (
-    <HoverCard>
+    <HoverCard openDelay={0} closeDelay={0}>
       <HoverCardTrigger asChild>
         <Button variant="ghost" size="icon">
           <LineChart className="size-4" />

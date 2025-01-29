@@ -95,4 +95,5 @@ export type ImageModel = BaseModel & {
 export type VideoModel = BaseModel & {
   id: VideoModelId;
   costPerSecond?: number;
+  config?: ModelConfig;
 };

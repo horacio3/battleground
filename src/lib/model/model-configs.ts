@@ -520,3 +520,36 @@ export const stabilityModelConfig: ModelConfig = [
     value: "1:1",
   },
 ];
+
+// Video Models
+
+export const lumaRay2ModelConfig: ModelConfig = [
+  {
+    type: "enum",
+    name: "aspect_ratio",
+    label: "Aspect Ratio",
+    options: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9", "9:21"],
+    value: "16:9",
+  },
+  {
+    type: "enum",
+    name: "resolution",
+    label: "Resolution",
+    options: ["720p", "540p"],
+    value: "720p",
+  },
+  {
+    type: "enum",
+    name: "dimensions",
+    label: "Dimensions",
+    options: ["1080x1920", "1080x2400", "1440x3200", "1440x3840", "2160x4096", "2160x4320"],
+    value: "1080x1920",
+  },
+  {
+    type: "enum",
+    name: "duration",
+    label: "Duration",
+    options: ["5s", "9s"],
+    value: "5s",
+  },
+];

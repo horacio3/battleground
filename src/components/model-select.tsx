@@ -25,7 +25,7 @@ export function ModelSelect({ selectedModelId, models, onChange }: ModelSelectPr
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" role="combobox" aria-expanded={open} className="h-8 w-[280px] justify-between p-2 ">
+        <Button variant="outline" role="combobox" aria-expanded={open} className="h-8 w-[280px] justify-between p-2">
           {selectedModel && (
             <Image
               src={getProviderIcon(selectedModel.provider)}
@@ -48,7 +48,7 @@ export function ModelSelect({ selectedModelId, models, onChange }: ModelSelectPr
                 <CommandItem
                   key={model.id}
                   value={model.id}
-                  className="flex flex-row items-center gap-2 text-xs"
+                  className="flex flex-row items-center gap-2 rounded-none text-xs"
                   onSelect={(currentValue) => {
                     onChange(currentValue);
                     setOpen(false);

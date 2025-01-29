@@ -32,7 +32,7 @@ export function ChatConfig({
             </Button>
           </TooltipTrigger>
         </PopoverTrigger>
-        <TooltipContent side="bottom" className="dark text-xs dark:invert">
+        <TooltipContent side="bottom" className="text-xs">
           Configure chat parameters
           <TooltipArrow />
         </TooltipContent>
@@ -59,7 +59,7 @@ export function ChatConfig({
                       <ClipboardPaste className="size-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom" className="dark text-xs dark:invert">
+                  <TooltipContent side="bottom" className="text-xs">
                     Synchronize System Prompt
                   </TooltipContent>
                 </Tooltip>
