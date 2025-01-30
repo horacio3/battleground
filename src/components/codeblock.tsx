@@ -1,9 +1,13 @@
 "use client";
 
 import { Copy } from "lucide-react";
+import { useTheme } from "next-themes";
 import { ReactNode } from "react";
 import { PrismAsync as SyntaxHighlighter } from "react-syntax-highlighter";
-import { a11yDark as theme } from "react-syntax-highlighter/dist/esm/styles/prism";
+import {
+  materialDark as darkTheme,
+  materialOceanic as lightTheme,
+} from "react-syntax-highlighter/dist/esm/styles/prism";
 import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
@@ -14,6 +18,7 @@ type CodeblockProps = {
 };
 
 export const Codeblock = ({ language = "text", children }: CodeblockProps) => {
+  const { resolvedTheme: theme } = useTheme();
   const copyToClipboard = () => {
     navigator.clipboard.writeText(String(children));
     toast("Code copied to clipboard");
@@ -23,7 +28,7 @@ export const Codeblock = ({ language = "text", children }: CodeblockProps) => {
     <div className="relative">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="link" className="absolute right-1 text-gray-300" onClick={copyToClipboard}>
+          <Button variant="link" className="absolute right-1 text-muted-foreground" onClick={copyToClipboard}>
             <Copy className="h-4 w-4" />
           </Button>
         </TooltipTrigger>
@@ -32,7 +37,13 @@ export const Codeblock = ({ language = "text", children }: CodeblockProps) => {
         </TooltipContent>
       </Tooltip>
 
-      <SyntaxHighlighter language={language} wrapLongLines useInlineStyles style={theme} customStyle={{ margin: 0 }}>
+      <SyntaxHighlighter
+        language={language}
+        wrapLongLines
+        useInlineStyles
+        style={theme === "dark" ? darkTheme : lightTheme}
+        customStyle={{ margin: 0 }}
+      >
         {String(children).replace(/\n$/, "")}
       </SyntaxHighlighter>
     </div>

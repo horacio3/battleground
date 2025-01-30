@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
 import Markdown from "markdown-to-jsx";
-import Image from "next/image";
+import { nanoid } from "nanoid";
 import { memo } from "react";
 import { Codeblock } from "./codeblock";
+import { MermaidComponent as Mermaid } from "./mermaid";
 
 export const MemoizedMarkdown = memo(function MarkdownComponent({
   response,
@@ -14,7 +15,7 @@ export const MemoizedMarkdown = memo(function MarkdownComponent({
   return (
     <Markdown
       className={cn(
-        "prose max-w-none overflow-y-auto overflow-x-hidden p-1 text-sm font-light dark:prose-invert prose-pre:m-0 prose-pre:bg-[#2b2b2b] prose-pre:p-1",
+        "prose max-w-none overflow-y-auto overflow-x-hidden p-1 text-sm font-light dark:prose-invert prose-pre:m-0 prose-pre:rounded-md prose-pre:bg-transparent prose-pre:p-0 prose-pre:text-sm prose-pre:font-light",
         className,
       )}
       options={{
@@ -22,24 +23,15 @@ export const MemoizedMarkdown = memo(function MarkdownComponent({
           code(props) {
             const { children, className } = props;
             const match = /lang-(\w+)/.exec(className || "");
+
+            if (match?.[1] === "mermaid") {
+              return <Mermaid source={children.toString()} id={nanoid()} />;
+            }
+
             return match ? (
               <Codeblock language={match?.[1] ?? "text"}>{children}</Codeblock>
             ) : (
               <code className="code text-wrap">{children}</code>
-            );
-          },
-          img(props) {
-            const { src, alt } = props;
-            return (
-              <Image
-                src={src ?? ""}
-                alt={alt ?? ""}
-                width={0}
-                height={0}
-                className="h-auto w-full"
-                loading="eager"
-                priority
-              />
             );
           },
         },
