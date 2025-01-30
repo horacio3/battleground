@@ -18,6 +18,8 @@ export const getProviderIcon = (provider?: string): string => {
       return "/openai.webp";
     case "AI21":
       return "/ai21.png";
+    case "Luma Labs":
+      return "/luma-labs.svg";
     default:
       return "/default.svg";
   }

@@ -4,8 +4,9 @@ import { VideoModel } from "@/lib/model/model.type";
 import { videoModels } from "@/lib/model/models";
 import { GetAsyncInvokeCommandOutput } from "@aws-sdk/client-bedrock-runtime";
 import humanizeDuration from "humanize-duration";
-import { Loader2 } from "lucide-react";
+import { AlertCircle, Loader2 } from "lucide-react";
 import { ModelSelect } from "./model-select";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 export type VideoResult = GetAsyncInvokeCommandOutput & { outputUrl?: string };
 
@@ -32,6 +33,15 @@ export const VideoPanel = ({ model, setModel, loading, result }: VideoPanelProps
         {/* {model.config.length > 0 && <ModelConfigButton model={model} setModel={(m) => setModel(m as VideoModel)} />} */}
       </div>
       <div className="w-full p-2">
+        {model.id === "luma.ray-v2:0" && (
+          <Alert className="mb-2 border-yellow-500 bg-yellow-500/10 py-2">
+            <AlertCircle className="size-5 stroke-yellow-500" />
+            <AlertTitle className="text-sm">Warning </AlertTitle>
+            <AlertDescription className="text-xs">
+              Each video costs $1.50 per second to generate! So use it wisely.
+            </AlertDescription>
+          </Alert>
+        )}
         {loading ? (
           <div className="flex flex-1 items-center justify-center">
             <Loader2 className="size-8 animate-spin self-center text-green-600" />
