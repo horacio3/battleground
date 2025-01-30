@@ -1,4 +1,5 @@
 import { useSub } from "@/lib/events";
+import { ImageModel } from "@/lib/model/model.type";
 import { imageModels } from "@/lib/model/models";
 import { useImageStore } from "@/stores/image-store";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
@@ -62,7 +63,7 @@ export const ImagePanel = ({ id }: { id: string }) => {
         <div className="mr-auto" />
         <div className="flex flex-row items-center gap-2">
           {result.model.config && (
-            <ModelConfigButton model={result.model} setModel={(model) => setModel(result.id, model)} />
+            <ModelConfigButton model={result.model} setModel={(model) => setModel(result.id, model as ImageModel)} />
           )}
           <Tooltip>
             <TooltipTrigger asChild>

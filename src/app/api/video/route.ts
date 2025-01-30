@@ -13,8 +13,37 @@ import { ipAddress } from "@vercel/functions";
 // IMPORTANT! Set the runtime to edge
 export const runtime = "edge";
 
-const videoS3Bucket = process.env.VIDEO_S3_BUCKET;
 const internalRateLimitDomain = process.env.INTERNAL_RATE_LIMIT_DOMAIN;
+
+const videoBuckets = {
+  "us-east-1": process.env.VIDEO_S3_BUCKET_US_EAST_1,
+  "us-west-2": process.env.VIDEO_S3_BUCKET_US_WEST_2,
+};
+
+const getModelInput = (modelId: VideoModelId, message: Message) => {
+  switch (modelId) {
+    case "amazon.nova-reel-v1:0":
+      return {
+        taskType: "TEXT_VIDEO",
+        textToVideoParams: {
+          text: message.content,
+        },
+        videoGenerationConfig: {
+          durationSeconds: 6,
+          fps: 24,
+          dimension: "1280x720",
+          seed: 0,
+        },
+      };
+    case "luma.ray-v2:0":
+      return {
+        prompt: message.content,
+        aspectRatio: "16:9",
+        resolution: "720p",
+        duration: "5s",
+      };
+  }
+};
 
 export async function POST(req: NextRequest) {
   const { sessionClaims } = await auth();
@@ -52,23 +81,16 @@ export async function POST(req: NextRequest) {
     const response = await bedrockClient.send(
       new StartAsyncInvokeCommand({
         modelId,
-        modelInput: {
-          taskType: "TEXT_VIDEO",
-          textToVideoParams: {
-            text: message.content,
-          },
-          videoGenerationConfig: {
-            durationSeconds: 6,
-            fps: 24,
-            dimension: "1280x720",
-            seed: 0,
-          },
-        },
+        modelInput: getModelInput(modelId, message) as any,
         outputDataConfig: {
           s3OutputDataConfig: {
-            s3Uri: `s3://${videoS3Bucket}`,
+            s3Uri: `s3://${videoBuckets[(modelInfo?.region as keyof typeof videoBuckets) ?? "us-east-1"]}`,
           },
         },
+        tags: [
+          { key: "user", value: sessionClaims?.email },
+          { key: "model", value: modelId },
+        ],
       }),
     );
 
@@ -101,7 +123,7 @@ export async function GET(req: NextRequest) {
 
   if (response.status === "Completed") {
     const uri = `${response.outputDataConfig?.s3OutputDataConfig?.s3Uri}/output.mp4`;
-    const url = await getPresignedUrl(uri);
+    const url = await getPresignedUrl(uri, modelInfo?.region ?? "us-east-1");
     return new Response(JSON.stringify({ ...response, outputUrl: url }));
   }
   return new Response(JSON.stringify(response));

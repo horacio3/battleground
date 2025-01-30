@@ -11,7 +11,8 @@ export type Provider =
   | "Mistral"
   | "Nvidia"
   | "OpenAI"
-  | "AI21";
+  | "AI21"
+  | "Luma Labs";
 
 export type TextModelId =
   | "amazon.titan-text-lite-v1"
@@ -65,7 +66,7 @@ export type ImageModelId =
   | "stability.sd3-5-large-v1:0"
   | "stability.stable-image-ultra-v1:0";
 
-export type VideoModelId = "amazon.nova-reel-v1:0";
+export type VideoModelId = "amazon.nova-reel-v1:0" | "luma.ray-v2:0";
 
 export interface BaseModel {
   provider: Provider;
@@ -95,5 +96,5 @@ export type ImageModel = BaseModel & {
 export type VideoModel = BaseModel & {
   id: VideoModelId;
   costPerSecond?: number;
-  config?: ModelConfig;
+  config: ModelConfig;
 };

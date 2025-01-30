@@ -28,7 +28,8 @@ export const VideoPanel = ({ model, setModel, loading, result }: VideoPanelProps
           selectedModelId={model.id}
           onChange={(modelId) => setModel(videoModels.find((m) => m.id === modelId) ?? videoModels[0])}
         />
-        {result && <span className="ml-2 text-xs text-muted-foreground">Took: {duration}</span>}
+        {result && <span className="ml-2 mr-auto text-xs text-muted-foreground">Took: {duration}</span>}
+        {/* {model.config.length > 0 && <ModelConfigButton model={model} setModel={(m) => setModel(m as VideoModel)} />} */}
       </div>
       <div className="w-full p-2">
         {loading ? (

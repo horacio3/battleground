@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { VideoPanel, VideoResult } from "@/components/video-panel";
+import { VideoModel } from "@/lib/model/model.type";
 import { videoModels } from "@/lib/model/models";
 import { SendHorizonal, Sparkles, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -10,7 +11,7 @@ import { toast } from "sonner";
 import { useLocalStorage } from "usehooks-ts";
 
 export default function Video() {
-  const [model, setModel] = useState(videoModels[0]);
+  const [model, setModel] = useLocalStorage<VideoModel>("videoModel", videoModels[0]);
   const [input, setInput] = useLocalStorage<string>("videoPrompt", "");
   const [invocationArn, setInvocationArn] = useLocalStorage<string | null>("videoInvocationArn", null);
   const [loading, setLoading] = useState(invocationArn ? true : false);
@@ -33,15 +34,29 @@ export default function Video() {
         if (!res.ok) throw new Error(data.message);
         setInvocationArn(data.invocationArn);
       })
-      .catch((err) => toast.error(err.message));
+      .catch((err) => {
+        toast.error(err.message);
+        setLoading(false);
+        setInvocationArn(null);
+      });
   };
 
   const checkVideoGeneration = async () => {
     if (!invocationArn) return;
 
     const res = await fetch("/api/video?" + new URLSearchParams({ modelId: model.id, invocationArn }))
-      .then((res) => res.json())
-      .catch((err) => toast.error(err.message));
+      .then((res) => {
+        if (!res.ok) throw new Error(res.statusText);
+        return res.json();
+      })
+      .catch((err) => {
+        toast.error(err.message);
+        setLoading(false);
+        setInvocationArn(null);
+        return null;
+      });
+
+    if (!res) return;
 
     const output = res as VideoResult;
 

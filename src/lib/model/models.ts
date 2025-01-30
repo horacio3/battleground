@@ -4,6 +4,7 @@ import {
   anthropicClaudeSonnet35Config,
   cohereCommandRModelConfig,
   llamaDefaultModelConfig,
+  lumaRay2ModelConfig,
   mistral7bInstructConfig,
   mistral8x7bInstructConfig,
   mistralLargeConfig,
@@ -469,5 +470,13 @@ export const videoModels: VideoModel[] = [
     id: "amazon.nova-reel-v1:0",
     name: "Nova Reel",
     costPerSecond: 0.08,
+    config: [],
+  },
+  {
+    provider: "Luma Labs",
+    id: "luma.ray-v2:0",
+    name: "Luma Ray v2",
+    region: "us-west-2",
+    config: lumaRay2ModelConfig,
   },
 ];

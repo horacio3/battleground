@@ -1,5 +1,5 @@
 import { ConfigValue } from "@/lib/model/model-config.type";
-import { ImageModel } from "@/lib/model/model.type";
+import { ImageModel, VideoModel } from "@/lib/model/model.type";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
 import { Info, SlidersHorizontalIcon } from "lucide-react";
 import { useState } from "react";
@@ -11,9 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 type ConfigValueInputProps = {
-  model: ImageModel;
+  model: ImageModel | VideoModel;
   setting: ConfigValue;
-  setModel: (model: ImageModel) => void;
+  setModel: (model: ImageModel | VideoModel) => void;
   onEnter: () => void;
 };
 
@@ -89,8 +89,8 @@ const ConfigValueInput = ({ setting, model, setModel, onEnter }: ConfigValueInpu
 };
 
 type ModelConfigButtonProps = {
-  model: ImageModel;
-  setModel: (model: ImageModel) => void;
+  model: ImageModel | VideoModel;
+  setModel: (model: ImageModel | VideoModel) => void;
 };
 
 export const ModelConfigButton = ({ model, setModel }: ModelConfigButtonProps) => {
