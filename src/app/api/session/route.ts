@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 export async function GET() {
   const { sessionClaims } = await auth();
 
-  if (!sessionClaims?.email?.endsWith("@calent.com")) {
+  if (!sessionClaims?.email?.endsWith("@caylent.com")) {
     return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 });
   }
 
