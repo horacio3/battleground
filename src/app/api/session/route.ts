@@ -1,6 +1,13 @@
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function GET() {
+  const { sessionClaims } = await auth();
+
+  if (!sessionClaims?.email?.endsWith("@calent.com")) {
+    return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 });
+  }
+
   try {
     const response = await fetch("https://api.openai.com/v1/realtime/sessions", {
       method: "POST",

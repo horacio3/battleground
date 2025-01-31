@@ -51,6 +51,9 @@ const useWebRTCAudioSession = (voice: string) => {
   const getEphemeralToken = async () => {
     const response = await fetch("/api/session");
     const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.message);
+    }
     return data.client_secret.value;
   };
 
@@ -175,7 +178,9 @@ const useWebRTCAudioSession = (voice: string) => {
     if (isSessionActive) {
       stopSession();
     } else {
-      startSession();
+      startSession().catch((err) => {
+        setStatus("error");
+      });
     }
   };
 

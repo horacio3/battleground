@@ -48,6 +48,10 @@ const getModelInput = (modelId: VideoModelId, message: Message) => {
 export async function POST(req: NextRequest) {
   const { sessionClaims } = await auth();
 
+  if (!sessionClaims?.email?.endsWith("@caylent.com")) {
+    return new Response(JSON.stringify({ message: "Unauthorized" }), { status: 401 });
+  }
+
   // If the user is from the internal rate limit domain, we use a different rate limiter
   if (internalRateLimitDomain && sessionClaims?.email?.endsWith(internalRateLimitDomain)) {
     const { success } = await internalRateLimiter.limit(sessionClaims?.email ?? ipAddress(req) ?? "127.0.0.1");
