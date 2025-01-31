@@ -54,7 +54,7 @@ export default function Image() {
         </div>
       </div>
 
-      <div className="flex flex-1 flex-row gap-2 overflow-x-auto overflow-y-hidden">
+      <div className="flex flex-1 flex-row gap-2 overflow-x-auto">
         {results.map((model) => (
           <ImagePanel key={model.id} id={model.id} />
         ))}

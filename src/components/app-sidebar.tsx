@@ -1,6 +1,6 @@
 "use client";
 
-import { AudioLines, Edit, GithubIcon, Image, MessageCircle, Video } from "lucide-react";
+import { AudioLines, Edit, GithubIcon, ImageIcon, MessageCircle, Video } from "lucide-react";
 import * as React from "react";
 
 import { NavLink, NavMain } from "@/components/nav-main";
@@ -12,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import Image from "next/image";
 import Link from "next/link";
 import { NavUser } from "./nav-user";
 import { ThemeToggle } from "./theme-toggle";
@@ -31,7 +32,7 @@ const navItems: NavLink[] = [
   {
     title: "Image",
     url: "/image",
-    icon: Image,
+    icon: ImageIcon,
   },
   {
     title: "Video",
@@ -51,7 +52,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenuButton size="lg" className="data-[state=open]:bg-foreground data-[state=open]:text-background">
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-gray-800 text-lime-500">
-            <img src="/battle.png" className="size-5" />
+            <Image src="/battle.png" alt="Battleground" className="size-5" width={20} height={20} />
           </div>
         </SidebarMenuButton>
       </SidebarHeader>

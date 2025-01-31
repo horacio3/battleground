@@ -1,7 +1,7 @@
 "use client";
 
 import { AppSidebar } from "./app-sidebar";
-import { SidebarInset, SidebarProvider } from "./ui/sidebar";
+import { SidebarProvider } from "./ui/sidebar";
 
 export function PlaygroundLayout({ children }: { children: React.ReactNode }) {
   // const pathname = usePathname();
@@ -14,8 +14,7 @@ export function PlaygroundLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarProvider open={false} defaultOpen={false}>
       <AppSidebar variant="sidebar" />
-      <SidebarInset>
-        {/* <header className="sticky top-0 flex h-14 shrink-0 flex-row items-center justify-between gap-2 border-b bg-background p-4">
+      {/* <header className="sticky top-0 flex h-14 shrink-0 flex-row items-center justify-between gap-2 border-b bg-background p-4">
           <Breadcrumb>
             <BreadcrumbList>
               {breadcrumbs.map((breadcrumb, index) => (
@@ -29,8 +28,7 @@ export function PlaygroundLayout({ children }: { children: React.ReactNode }) {
             </BreadcrumbList>
           </Breadcrumb>
         </header> */}
-        {children}
-      </SidebarInset>
+      {children}
     </SidebarProvider>
   );
 }

@@ -27,7 +27,7 @@ export default function Chat() {
   });
 
   return (
-    <main className="flex min-h-0 flex-1 flex-col">
+    <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="flex max-h-lvh max-w-full flex-1 flex-row gap-2 overflow-x-auto p-2">
         {isLoaded ? (
           chats.map((chat) => <ChatPanel key={chat.id} chatId={chat.id} />)
