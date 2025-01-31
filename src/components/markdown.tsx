@@ -3,14 +3,18 @@ import Markdown from "markdown-to-jsx";
 import { nanoid } from "nanoid";
 import { memo } from "react";
 import { Codeblock } from "./codeblock";
-import { MermaidComponent as Mermaid } from "./mermaid";
+import { Mermaid } from "./mermaid";
 
 export const MemoizedMarkdown = memo(function MarkdownComponent({
+  messageId,
   response,
   className,
+  isLoading = false,
 }: {
+  messageId?: string;
   response: string;
   className?: string;
+  isLoading?: boolean;
 }) {
   return (
     <Markdown
@@ -20,18 +24,37 @@ export const MemoizedMarkdown = memo(function MarkdownComponent({
       )}
       options={{
         overrides: {
+          p(props) {
+            return <div {...props} />;
+          },
           code(props) {
             const { children, className } = props;
             const match = /lang-(\w+)/.exec(className || "");
 
             if (match?.[1] === "mermaid") {
-              return <Mermaid source={children.toString()} id={nanoid()} />;
+              return isLoading ? (
+                <span className="text-foreground">Loading diagram...</span>
+              ) : (
+                <Mermaid source={children.toString()} id={nanoid()} />
+              );
+            }
+
+            const lines = children.toString().split("\n") as string[];
+
+            if (lines?.[0].trim() === "mermaid") {
+              return isLoading ? (
+                <span className="text-foreground">Loading diagram...</span>
+              ) : (
+                <Mermaid source={lines.slice(1).join("\n")} id={nanoid()} />
+              );
             }
 
             return match ? (
               <Codeblock language={match?.[1] ?? "text"}>{children}</Codeblock>
             ) : (
-              <code className="code text-wrap">{children}</code>
+              <div className="my-1 inline-block rounded-md border bg-background p-1">
+                <code className="code text-wrap font-mono text-xs text-foreground">{children}</code>
+              </div>
             );
           },
         },

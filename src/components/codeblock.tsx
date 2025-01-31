@@ -25,10 +25,10 @@ export const Codeblock = ({ language = "text", children }: CodeblockProps) => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative my-2 w-fit p-1 text-xs">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="link" className="absolute right-1 text-muted-foreground" onClick={copyToClipboard}>
+          <Button variant="link" className="absolute right-1 text-white" onClick={copyToClipboard}>
             <Copy className="h-4 w-4" />
           </Button>
         </TooltipTrigger>

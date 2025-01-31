@@ -23,11 +23,11 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect } from "react";
-import ScrollToBottom from "react-scroll-to-bottom";
 import TextareaAutosize from "react-textarea-autosize";
 import { toast } from "sonner";
 import { useFilePicker } from "use-file-picker";
 import { ChatConfig } from "./chat-config";
+import { ChatMessageArea } from "./chat-message-area";
 import { ChatMessageButtons } from "./chat-message-buttons";
 import { ImageChip } from "./image-chip";
 import { MemoizedMarkdown } from "./markdown";
@@ -102,7 +102,6 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
 
   useEffect(() => {
     if (messages.length > 0) {
-      console.log("setting chat messages", new Date().toISOString());
       setChatMessages(chat.id, messages);
     }
   }, [chat.id, messages, setChatMessages]);
@@ -203,7 +202,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
         </div>
       </div>
 
-      <ScrollToBottom className={cn("flex flex-1 overflow-y-auto")}>
+      <ChatMessageArea scrollButtonAlignment="center" className={cn("flex flex-1 flex-col overflow-y-auto")}>
         {messages.map((message, idx) => (
           <div
             key={message.id}
@@ -227,7 +226,12 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                   className="rounded-sm"
                 />
               )}
-              <MemoizedMarkdown response={message.content} className="flex-1 p-0.5" />
+              <MemoizedMarkdown
+                messageId={message.id}
+                response={message.content}
+                className="flex-1 p-0.5"
+                isLoading={isLoading && message.id === messages[messages.length - 1].id}
+              />
               <div className="flex flex-row gap-1">
                 <ChatMessageButtons message={message.content} />
               </div>
@@ -256,7 +260,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
             )}
           </div>
         ))}
-      </ScrollToBottom>
+      </ChatMessageArea>
 
       <div className="border-t bg-muted p-2 dark:bg-transparent">
         {hasChatMetrics && (

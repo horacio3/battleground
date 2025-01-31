@@ -21,7 +21,7 @@ export function SettingsButton() {
         <TooltipTrigger asChild>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="xsicon">
-              <Settings className="size-4 rotate-0 scale-100 transition-all" />
+              <Settings className="size-4" />
               <span className="sr-only">Open Settings</span>
             </Button>
           </PopoverTrigger>
