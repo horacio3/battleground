@@ -61,10 +61,9 @@ export type ImageModelId =
   | "amazon.titan-image-generator-v1"
   | "amazon.titan-image-generator-v2:0"
   | "amazon.nova-canvas-v1:0"
-  | "stability.stable-image-core-v1:0"
-  | "stability.sd3-large-v1:0"
+  | "stability.stable-image-core-v1:1"
   | "stability.sd3-5-large-v1:0"
-  | "stability.stable-image-ultra-v1:0";
+  | "stability.stable-image-ultra-v1:1";
 
 export type VideoModelId = "amazon.nova-reel-v1:0" | "luma.ray-v2:0";
 

@@ -52,7 +52,7 @@ export const ImagePanel = ({ id }: { id: string }) => {
   });
 
   return (
-    <div className="min-width-[465px] flex flex-1 flex-col divide-y rounded-md border">
+    <div className="min-width-[465px] flex flex-1 flex-col rounded-md border dark:divide-y">
       <div className="flex flex-row items-center gap-2 bg-muted p-2 dark:bg-background">
         <ModelSelect
           models={imageModels}
@@ -102,7 +102,9 @@ export const ImagePanel = ({ id }: { id: string }) => {
           </DropdownMenu>
         </div>
       </div>
-      <MemoizedMarkdown response={result.output} className="flex flex-1 rounded-b-md p-2" />
+      <div className="flex w-full flex-1 justify-center overflow-y-auto p-2">
+        <MemoizedMarkdown response={result.output} className="flex w-full flex-1" />
+      </div>
     </div>
   );
 };

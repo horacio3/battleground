@@ -31,9 +31,8 @@ export const getImageModelPrompt = ({ modelId, messages, config }: GetModelPromp
           ...settings,
         },
       };
-    case "stability.stable-image-core-v1:0":
-    case "stability.stable-image-ultra-v1:0":
-    case "stability.sd3-large-v1:0":
+    case "stability.stable-image-core-v1:1":
+    case "stability.stable-image-ultra-v1:1":
     case "stability.sd3-5-large-v1:0":
       return {
         prompt: messages.at(0)?.content,
@@ -52,9 +51,8 @@ export const getImageModelResponse = (modelId: ImageModelId, response: any) => {
     case "amazon.titan-image-generator-v2:0":
     case "amazon.nova-canvas-v1:0":
       return (response.images as []).map((imageData: any) => `![Image](data:image/png;base64,${imageData})`).join("\n");
-    case "stability.stable-image-core-v1:0":
-    case "stability.stable-image-ultra-v1:0":
-    case "stability.sd3-large-v1:0":
+    case "stability.stable-image-core-v1:1":
+    case "stability.stable-image-ultra-v1:1":
     case "stability.sd3-5-large-v1:0":
       return `![Image](data:image/png;base64,${response.images[0]})`;
     default: {

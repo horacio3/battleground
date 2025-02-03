@@ -19,7 +19,7 @@ export const MemoizedMarkdown = memo(function MarkdownComponent({
   return (
     <Markdown
       className={cn(
-        "prose max-w-none overflow-y-auto overflow-x-hidden p-1 text-sm font-light dark:prose-invert prose-pre:m-0 prose-pre:rounded-md prose-pre:bg-transparent prose-pre:p-0 prose-pre:text-sm prose-pre:font-light",
+        "prose flex max-w-none flex-col overflow-y-auto overflow-x-hidden p-1 text-sm font-light dark:prose-invert prose-pre:m-0 prose-pre:rounded-md prose-pre:bg-transparent prose-pre:p-0 prose-pre:text-sm prose-pre:font-light",
         className,
       )}
       options={{
@@ -56,6 +56,10 @@ export const MemoizedMarkdown = memo(function MarkdownComponent({
                 <code className="code text-wrap font-mono text-xs text-foreground">{children}</code>
               </div>
             );
+          },
+          img(props) {
+            const { src, alt } = props;
+            return <img src={src} alt={alt} className="m-2 max-h-96 object-contain" />;
           },
         },
       }}
