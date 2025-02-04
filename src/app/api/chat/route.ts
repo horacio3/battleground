@@ -8,7 +8,7 @@ import { ResponseMetrics } from "@/types/response-metrics.type";
 import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock";
 import { createOpenAI } from "@ai-sdk/openai";
 import { auth } from "@clerk/nextjs/server";
-import { createDataStreamResponse, Message, streamText } from "ai";
+import { createDataStreamResponse, extractReasoningMiddleware, Message, streamText, wrapLanguageModel } from "ai";
 import { NextRequest } from "next/server";
 
 // IMPORTANT! Set the runtime to edge
@@ -66,13 +66,18 @@ export async function POST(req: NextRequest) {
               },
             })(modelId);
 
+    const wrappedModel = wrapLanguageModel({
+      model,
+      middleware: extractReasoningMiddleware({ tagName: "thinking" }),
+    });
+
     let firstTokenTime: number = NaN;
     const start = Date.now();
 
     return createDataStreamResponse({
       execute: (dataStream) => {
         const result = streamText({
-          model,
+          model: wrappedModel,
           system: modelInfo?.systemPromptSupport ? config?.systemPrompt : undefined,
           messages: convertAiMessagesToCoreMessages(messages),
           maxTokens: config?.maxTokens.value,

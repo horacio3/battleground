@@ -55,7 +55,8 @@ export type TextModelId =
   | "ai21.jamba-1-5-mini-v1:0"
   | "ai21.jamba-1-5-large-v1:0"
   | "gpt-4o"
-  | "gpt-4o-mini";
+  | "gpt-4o-mini"
+  | "o3-mini";
 
 export type ImageModelId =
   | "amazon.titan-image-generator-v1"

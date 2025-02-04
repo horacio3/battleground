@@ -36,8 +36,6 @@ export function FileButton({ files, setFiles }: FileButtonProps) {
             return;
           }
 
-          console.log(e.target.files);
-
           const oldFiles = Array.from(files ?? []);
           const newFiles = Array.from(e.target.files).filter((f) => !oldFiles.find((of) => of.name === f.name));
           setFiles([...oldFiles, ...newFiles]);

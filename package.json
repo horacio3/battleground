@@ -10,8 +10,8 @@
     "postinstall": "patch-package"
   },
   "dependencies": {
-    "@ai-sdk/amazon-bedrock": "^1.1.5",
-    "@ai-sdk/openai": "^1.1.5",
+    "@ai-sdk/amazon-bedrock": "^1.1.6",
+    "@ai-sdk/openai": "^1.1.9",
     "@ai-sdk/react": "^1.1.6",
     "@aws-sdk/client-bedrock": "^3.734.0",
     "@aws-sdk/client-bedrock-agent": "^3.716.0",
@@ -58,7 +58,7 @@
     "@upstash/ratelimit": "^2.0.5",
     "@vercel/functions": "^1.5.2",
     "@vercel/kv": "^3.0.0",
-    "ai": "^4.1.11",
+    "ai": "^4.1.17",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.4",

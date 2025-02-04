@@ -331,6 +331,28 @@ export const openAiGpt4ominiConfig: TextModelConfig = {
   },
 };
 
+export const o3MiniConfig: TextModelConfig = {
+  systemPrompt: "",
+  maxTokens: {
+    value: 2048,
+    min: 1,
+    max: 16384,
+    default: 2048,
+  },
+  temperature: {
+    value: 1,
+    min: 0,
+    max: 2,
+    default: 1,
+  },
+  topP: {
+    value: 1,
+    min: 0,
+    max: 1,
+    default: 1,
+  },
+};
+
 // Image Models
 
 export const titanImageModelConfig: ModelConfig = [

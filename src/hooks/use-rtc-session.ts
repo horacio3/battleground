@@ -185,8 +185,6 @@ const useWebRTCAudioSession = (voice: string) => {
   };
 
   const setVoice = (voice: Voice) => {
-    console.log(`setting voice to "${voice}"`);
-
     const sessionUpdate = {
       type: "session.update",
       session: {
