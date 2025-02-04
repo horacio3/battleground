@@ -377,7 +377,7 @@ export const textModels: TextModel[] = [
   {
     provider: "OpenAI",
     id: "o3-mini",
-    name: "O3 Mini",
+    name: "o3 Mini",
     inputCostPerToken: 0.0011 / 1e3,
     outputCostPerToken: 0.0044 / 1e3,
     inputModalities: ["TEXT"],
