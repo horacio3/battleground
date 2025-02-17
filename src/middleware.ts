@@ -10,7 +10,12 @@ export default clerkMiddleware(
       auth.protect();
     }
   },
-  { afterSignInUrl: "/chat", afterSignUpUrl: "/chat" },
+  {
+    signInUrl: "/sign-in",
+    afterSignInUrl: "/chat",
+    signUpUrl: "/sign-up",
+    afterSignUpUrl: "/chat",
+  },
 );
 
 export const config = {
