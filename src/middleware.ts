@@ -1,16 +1,17 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher(["", "/sign-in(.*)", "/sign-up(.*)", "/api/webhooks(.*)"]);
+const isPublicRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)", "/api/webhooks(.*)"]);
 
 // See https://clerk.com/docs/references/nextjs/auth-middleware
 // for more information about configuring your Middleware
 export default clerkMiddleware(
-  (auth, req) => {
+  async (auth, req) => {
     if (!isPublicRoute(req)) {
-      auth.protect();
+      await auth.protect();
     }
   },
   {
+    debug: true,
     signInUrl: "/sign-in",
     afterSignInUrl: "/chat",
     signUpUrl: "/sign-up",
