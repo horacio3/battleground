@@ -161,6 +161,17 @@ export const textModels: TextModel[] = [
     systemPromptSupport: true,
   },
   {
+    provider: "Anthropic",
+    id: "us.anthropic.claude-3-7-sonnet-20250219-v1:0",
+    name: "Claude 3.7 Sonnet",
+    inputCostPerToken: 0.003 / 1e3,
+    outputCostPerToken: 0.015 / 1e3,
+    inputModalities: ["TEXT", "IMAGE"],
+    outputModalities: ["TEXT"],
+    config: anthropicClaudeSonnet35Config,
+    systemPromptSupport: true,
+  },
+  {
     provider: "Cohere",
     id: "cohere.command-r-v1:0",
     name: "Command R",
