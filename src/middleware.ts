@@ -11,7 +11,6 @@ export default clerkMiddleware(
     }
   },
   {
-    debug: true,
     signInUrl: "/sign-in",
     afterSignInUrl: "/chat",
     signUpUrl: "/sign-up",

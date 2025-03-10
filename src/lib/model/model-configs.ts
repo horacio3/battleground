@@ -353,6 +353,28 @@ export const o3MiniConfig: TextModelConfig = {
   },
 };
 
+export const deepseekR1Config: TextModelConfig = {
+  systemPrompt: "",
+  maxTokens: {
+    value: 2000,
+    min: 1,
+    max: 8000,
+    default: 2000,
+  },
+  temperature: {
+    value: 0.7,
+    min: 0,
+    max: 1,
+    default: 0.7,
+  },
+  topP: {
+    value: 0.9,
+    min: 0,
+    max: 1,
+    default: 0.9,
+  },
+};
+
 // Image Models
 
 export const titanImageModelConfig: ModelConfig = [

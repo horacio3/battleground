@@ -8,6 +8,8 @@ export const getProviderIcon = (provider?: string): string => {
       return "/aws.svg";
     case "Meta":
       return "/meta.svg";
+    case "Deepseek":
+      return "/deepseek.svg";
     case "Mistral AI":
       return "/mistral.svg";
     case "Stability AI":
