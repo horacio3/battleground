@@ -8,7 +8,7 @@ import { ResponseMetrics } from "@/types/response-metrics.type";
 import { createAmazonBedrock } from "@ai-sdk/amazon-bedrock";
 import { createOpenAI } from "@ai-sdk/openai";
 import { auth } from "@clerk/nextjs/server";
-import { createDataStreamResponse, extractReasoningMiddleware, Message, streamText, wrapLanguageModel } from "ai";
+import { createDataStreamResponse, Message, streamText } from "ai";
 import { NextRequest } from "next/server";
 
 // IMPORTANT! Set the runtime to edge
@@ -57,19 +57,10 @@ export async function POST(req: NextRequest) {
               apiKey: process.env.OPENAI_API_KEY ?? "",
             })(modelId)
           : createAmazonBedrock({
-              bedrockOptions: {
-                region: modelInfo?.region ?? process.env.AWS_REGION ?? "us-east-1",
-                credentials: {
-                  accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID ?? "",
-                  secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY ?? "",
-                },
-              },
+              region: modelInfo?.region ?? process.env.AWS_REGION ?? "us-east-1",
+              accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID ?? "",
+              secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY ?? "",
             })(modelId);
-
-    const wrappedModel = wrapLanguageModel({
-      model,
-      middleware: extractReasoningMiddleware({ tagName: "thinking" }),
-    });
 
     let firstTokenTime: number = NaN;
     const start = Date.now();
@@ -77,12 +68,20 @@ export async function POST(req: NextRequest) {
     return createDataStreamResponse({
       execute: (dataStream) => {
         const result = streamText({
-          model: wrappedModel,
-          system: modelInfo?.systemPromptSupport ? config?.systemPrompt : undefined,
+          model,
+          system: modelInfo?.systemPromptSupport && !!config?.systemPrompt ? config.systemPrompt : undefined,
           messages: convertAiMessagesToCoreMessages(messages),
           maxTokens: config?.maxTokens.value,
           temperature: config?.temperature.value,
           topP: config?.topP.value,
+          providerOptions: {
+            bedrock:
+              modelInfo?.id === "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
+                ? {
+                    reasoning_config: { type: "enabled", budget_tokens: 1024 },
+                  }
+                : {},
+          },
           onChunk: () => {
             if (!firstTokenTime) {
               firstTokenTime = Date.now() - start;
@@ -101,7 +100,7 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        result.mergeIntoDataStream(dataStream);
+        result.mergeIntoDataStream(dataStream, { sendReasoning: true });
       },
       onError: (err) => {
         console.error("ERROR", err);

@@ -176,6 +176,7 @@ export const textModels: TextModel[] = [
     provider: "Deepseek",
     id: "us.deepseek.r1-v1:0",
     name: "Deepseek R1",
+    region: "us-west-2",
     inputCostPerToken: 0.00135 / 1e3,
     outputCostPerToken: 0.0054 / 1e3,
     inputModalities: ["TEXT"],

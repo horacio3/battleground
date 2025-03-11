@@ -2,7 +2,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import type { Metadata } from "next";
-import { Toaster } from "sonner";
 import "./globals.css";
 import QueryProvider from "./providers";
 import { ThemeProvider } from "./theme-provider";
@@ -27,7 +26,6 @@ export default function RootLayout({
             <ThemeProvider attribute="class" defaultTheme="light">
               <TooltipProvider delayDuration={0}>
                 <div className="flex h-screen w-screen flex-row overflow-hidden">{children}</div>
-                <Toaster />
               </TooltipProvider>
             </ThemeProvider>
             <ReactQueryDevtools initialIsOpen={false} />

@@ -1,5 +1,6 @@
 "use client";
 
+import { useToast } from "@/hooks/use-toast";
 import { usePub, useSub } from "@/lib/events";
 import { getProviderIcon } from "@/lib/get-provider-icon";
 import { textModels } from "@/lib/model/models";
@@ -24,11 +25,9 @@ import {
 import Image from "next/image";
 import { useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
-import { toast } from "sonner";
 import { useFilePicker } from "use-file-picker";
 import { ChatConfig } from "./chat-config";
 import { ChatMessageArea } from "./chat-message-area";
-import { ChatMessageButtons } from "./chat-message-buttons";
 import { ImageChip } from "./image-chip";
 import { MemoizedMarkdown } from "./markdown";
 import { MetricsChartPopoverButton } from "./metrics-chart-popover";
@@ -37,6 +36,7 @@ import { MetricsExportButton } from "./metrics-export-button";
 import { MicToggle } from "./mic-toggle";
 import { ModelSelect } from "./model-select";
 import { SyncButton } from "./sync-button";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import {
@@ -49,6 +49,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export const ChatPanel = ({ chatId }: { chatId: string }) => {
+  const { toast } = useToast();
   const publish = usePub();
   const chat = useChatStore((state) => state.chats.find((c) => c.id === chatId))!;
   const chats = useChatStore((state) => state.chats);
@@ -80,7 +81,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
     },
   });
 
-  const { messages, append, isLoading } = useChat({
+  const { messages, append, status, setMessages } = useChat({
     id: chat.id,
     experimental_throttle: 100,
     body: {
@@ -91,11 +92,19 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
     streamProtocol: "data",
     initialMessages: chat.messages,
     onError(error) {
-      if ("message" in error) {
+      try {
         const { message } = JSON.parse(error.message);
-        toast.error(`${chat.model.id}: ${message}`);
-      } else {
-        toast.error(`${chat.model.id}: Unknown error`);
+        toast({
+          title: `${chat.model.id}: ${message}`,
+          description: "Please try again.",
+        });
+      } catch (e) {
+        toast({
+          title: `${chat.model.id}: Unknown error`,
+          description: "Please try again.",
+        });
+      } finally {
+        setChatMessages(chat.id, messages.slice(0, -1));
       }
     },
   });
@@ -223,17 +232,43 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                   alt={chat.model.provider}
                   width={24}
                   height={24}
-                  className="rounded-sm"
+                  className="w-6 rounded-sm"
                 />
               )}
-              <MemoizedMarkdown
-                messageId={message.id}
-                response={message.content}
-                className="flex-1 p-0.5"
-                isLoading={isLoading && message.id === messages[messages.length - 1].id}
-              />
-              <div className="flex flex-row gap-1">
-                <ChatMessageButtons message={message.content} />
+              <div className="flex flex-1 flex-col gap-2">
+                {message.parts.map((part, idx) => {
+                  switch (part.type) {
+                    case "reasoning":
+                      return (
+                        <Accordion key={idx} type="single" collapsible defaultValue="reasoning">
+                          <AccordionItem value="reasoning" className="-mt-1.5 rounded-md border p-2">
+                            <AccordionTrigger className="p-0.5 text-sm font-normal">Reasoning</AccordionTrigger>
+                            <AccordionContent className="pb-0 pt-2 font-light">
+                              <MemoizedMarkdown
+                                key={idx}
+                                messageId={message.id}
+                                response={part.reasoning}
+                                className="p-0.5"
+                                isLoading={status === "streaming" && message.id === messages[messages.length - 1].id}
+                              />
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      );
+                    case "text":
+                      return (
+                        <MemoizedMarkdown
+                          key={idx}
+                          messageId={message.id}
+                          response={part.text}
+                          className="p-0.5"
+                          isLoading={status === "streaming" && message.id === messages[messages.length - 1].id}
+                        />
+                      );
+                    default:
+                      return <></>;
+                  }
+                })}
               </div>
             </div>
 
@@ -288,7 +323,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
             value={chat.input}
             onChange={(e) => setChatInput(chat.id, e.target.value)}
             onKeyDown={(e) => {
-              if (isLoading) return;
+              if (status === "streaming") return;
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 executeChat();
@@ -328,7 +363,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                 variant="ghost"
                 size="icon"
                 className="h-7 w-7 focus:ring-transparent"
-                disabled={!chat.input || isLoading}
+                disabled={!chat.input || status === "streaming"}
                 onClick={executeChat}
               >
                 <SendHorizonal className="h-4 w-4" />

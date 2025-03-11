@@ -356,10 +356,10 @@ export const o3MiniConfig: TextModelConfig = {
 export const deepseekR1Config: TextModelConfig = {
   systemPrompt: "",
   maxTokens: {
-    value: 2000,
+    value: 8192,
     min: 1,
-    max: 8000,
-    default: 2000,
+    max: 32768,
+    default: 8192,
   },
   temperature: {
     value: 0.7,
