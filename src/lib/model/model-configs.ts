@@ -1,4 +1,4 @@
-import { ConfigValue, ModelConfig } from "./model-config.type";
+import { ModelConfig } from "./model-config.type";
 
 export type TextModelConfig = {
   systemPrompt: string;
@@ -20,7 +20,15 @@ export type TextModelConfig = {
     max: number;
     default: number;
   };
-  additionalParams?: ConfigValue[];
+  reasoning?: {
+    enabled: boolean;
+    budgetTokens: {
+      value: number;
+      min: number;
+      max: number;
+      default: number;
+    };
+  };
 };
 
 export const titanTextLiteConfig: TextModelConfig = {
@@ -138,7 +146,7 @@ export const anthropicClaudeSonnet35Config: TextModelConfig = {
   maxTokens: {
     value: 512,
     min: 1,
-    max: 4096,
+    max: 8192,
     default: 512,
   },
   temperature: {
@@ -152,6 +160,37 @@ export const anthropicClaudeSonnet35Config: TextModelConfig = {
     min: 0,
     max: 1,
     default: 0.999,
+  },
+};
+
+export const antrhopicClaudeSonnet37Config: TextModelConfig = {
+  systemPrompt: "",
+  maxTokens: {
+    value: 8192,
+    min: 1,
+    max: 64000, // Note: this is only in extended thinking mode
+    default: 512,
+  },
+  temperature: {
+    value: 1,
+    min: 0,
+    max: 1,
+    default: 1,
+  },
+  topP: {
+    value: 0.999,
+    min: 0,
+    max: 1,
+    default: 0.999,
+  },
+  reasoning: {
+    enabled: false,
+    budgetTokens: {
+      value: 1024,
+      min: 1024,
+      max: 64000,
+      default: 1024,
+    },
   },
 };
 

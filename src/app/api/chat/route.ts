@@ -75,12 +75,11 @@ export async function POST(req: NextRequest) {
           temperature: config?.temperature.value,
           topP: config?.topP.value,
           providerOptions: {
-            bedrock:
-              modelInfo?.id === "us.anthropic.claude-3-7-sonnet-20250219-v1:0"
-                ? {
-                    reasoning_config: { type: "enabled", budget_tokens: 1024 },
-                  }
-                : {},
+            bedrock: config?.reasoning?.enabled
+              ? {
+                  reasoning_config: { type: "enabled", budget_tokens: config.reasoning.budgetTokens.value },
+                }
+              : {},
           },
           onChunk: () => {
             if (!firstTokenTime) {

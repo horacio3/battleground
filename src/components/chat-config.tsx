@@ -10,6 +10,7 @@ import { TextModel } from "@/lib/model/model.type";
 import { ChatParams } from "@/stores/chat-store";
 import { TooltipArrow } from "@radix-ui/react-tooltip";
 import { ClipboardPaste, SlidersHorizontalIcon } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export function ChatConfig({
@@ -144,6 +145,72 @@ export function ChatConfig({
               />
             </div>
           </div>
+
+          {model.config.reasoning && (
+            <>
+              <div key="extended-thinking" className="grid gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label>Extended Thinking</Label>
+                  <Select
+                    value={model.config.reasoning.enabled ? "enabled" : "disabled"}
+                    onValueChange={(value) =>
+                      onConfigChange({
+                        reasoning: {
+                          enabled: value === "enabled",
+                          budgetTokens: model.config.reasoning?.budgetTokens?.value || 1024,
+                        },
+                      })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an option" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="enabled">Enabled</SelectItem>
+                      <SelectItem value="disabled">Disabled</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {model.config.reasoning.enabled && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="budgetTokens">Budget Tokens</Label>
+                    <div className="flex items-center gap-2">
+                      <Slider
+                        id="budgetTokens"
+                        min={model.config.reasoning?.budgetTokens?.min}
+                        max={model.config.reasoning?.budgetTokens?.max}
+                        step={1}
+                        value={[model.config.reasoning?.budgetTokens?.value]}
+                        onValueChange={(value) =>
+                          onConfigChange({
+                            reasoning: { budgetTokens: value[0], enabled: !!model.config.reasoning?.enabled },
+                          })
+                        }
+                        className="flex-grow"
+                      />
+                      <Input
+                        type="number"
+                        value={model.config.reasoning?.budgetTokens?.value}
+                        onChange={(e) =>
+                          onConfigChange({
+                            reasoning: {
+                              budgetTokens: Number(e.target.value),
+                              enabled: !!model.config.reasoning?.enabled,
+                            },
+                          })
+                        }
+                        className="w-28"
+                        min={model.config.reasoning?.budgetTokens?.min}
+                        max={model.config.reasoning?.budgetTokens?.max}
+                        step={1}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       </PopoverContent>
     </Popover>

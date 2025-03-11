@@ -22,6 +22,10 @@ export type ChatParams = {
   maxTokens?: number;
   temperature?: number;
   topP?: number;
+  reasoning?: {
+    enabled: boolean;
+    budgetTokens: number;
+  };
 };
 
 type ChatStoreState = {
@@ -113,6 +117,20 @@ export const useChatStore = create<ChatStoreState>()(
             topP: {
               ...state.chats[chatIndex].model.config?.topP,
               value: params.topP ?? state.chats[chatIndex].model.config?.topP.value,
+            },
+            reasoning: {
+              ...state.chats[chatIndex].model.config?.reasoning,
+              enabled: params.reasoning?.enabled ?? state.chats[chatIndex].model.config?.reasoning?.enabled ?? false,
+              budgetTokens: {
+                min: 0,
+                max: 4096,
+                default: 1024,
+                ...state.chats[chatIndex].model.config?.reasoning?.budgetTokens,
+                value:
+                  params.reasoning?.budgetTokens ??
+                  state.chats[chatIndex].model.config?.reasoning?.budgetTokens?.value ??
+                  1024,
+              },
             },
           };
         });

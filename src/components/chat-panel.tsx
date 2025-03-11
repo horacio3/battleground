@@ -28,6 +28,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import { useFilePicker } from "use-file-picker";
 import { ChatConfig } from "./chat-config";
 import { ChatMessageArea } from "./chat-message-area";
+import { ChatMessageButtons } from "./chat-message-buttons";
 import { ImageChip } from "./image-chip";
 import { MemoizedMarkdown } from "./markdown";
 import { MetricsChartPopoverButton } from "./metrics-chart-popover";
@@ -242,7 +243,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                       return (
                         <Accordion key={idx} type="single" collapsible defaultValue="reasoning">
                           <AccordionItem value="reasoning" className="-mt-1.5 rounded-md border p-2">
-                            <AccordionTrigger className="p-0.5 text-sm font-normal">Reasoning</AccordionTrigger>
+                            <AccordionTrigger className="p-0.5 text-sm font-normal">Thinking...</AccordionTrigger>
                             <AccordionContent className="pb-0 pt-2 font-light">
                               <MemoizedMarkdown
                                 key={idx}
@@ -257,13 +258,18 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                       );
                     case "text":
                       return (
-                        <MemoizedMarkdown
-                          key={idx}
-                          messageId={message.id}
-                          response={part.text}
-                          className="p-0.5"
-                          isLoading={status === "streaming" && message.id === messages[messages.length - 1].id}
-                        />
+                        <div className="relative">
+                          <MemoizedMarkdown
+                            key={idx}
+                            messageId={message.id}
+                            response={part.text}
+                            className="p-0.5"
+                            isLoading={status === "streaming" && message.id === messages[messages.length - 1].id}
+                          />
+                          <div className="absolute right-0 top-0">
+                            <ChatMessageButtons message={part.text} />
+                          </div>
+                        </div>
                       );
                     default:
                       return <></>;

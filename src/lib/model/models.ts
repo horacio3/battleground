@@ -2,6 +2,7 @@ import {
   ai21JambaInstructConfig,
   anthropicClaudeDefaultConfig,
   anthropicClaudeSonnet35Config,
+  antrhopicClaudeSonnet37Config,
   cohereCommandRModelConfig,
   deepseekR1Config,
   llamaDefaultModelConfig,
@@ -169,7 +170,7 @@ export const textModels: TextModel[] = [
     outputCostPerToken: 0.015 / 1e3,
     inputModalities: ["TEXT", "IMAGE"],
     outputModalities: ["TEXT"],
-    config: anthropicClaudeSonnet35Config,
+    config: antrhopicClaudeSonnet37Config,
     systemPromptSupport: true,
   },
   {
