@@ -258,7 +258,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                       );
                     case "text":
                       return (
-                        <div className="relative">
+                        <div className="flex flex-row justify-between gap-2">
                           <MemoizedMarkdown
                             key={idx}
                             messageId={message.id}
@@ -266,7 +266,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                             className="p-0.5"
                             isLoading={status === "streaming" && message.id === messages[messages.length - 1].id}
                           />
-                          <div className="absolute right-0 top-0">
+                          <div className="flex">
                             <ChatMessageButtons message={part.text} />
                           </div>
                         </div>
