@@ -22,6 +22,8 @@ export const getProviderIcon = (provider?: string): string => {
       return "/ai21.png";
     case "Luma Labs":
       return "/luma-labs.svg";
+    case "Writer":
+      return "/writer.svg";
     default:
       return "/default.svg";
   }

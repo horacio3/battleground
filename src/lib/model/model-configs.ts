@@ -414,6 +414,28 @@ export const deepseekR1Config: TextModelConfig = {
   },
 };
 
+export const writerModelConfig: TextModelConfig = {
+  systemPrompt: "",
+  maxTokens: {
+    value: 2048,
+    min: 1,
+    max: 8192,
+    default: 2048,
+  },
+  temperature: {
+    value: 1,
+    min: 0,
+    max: 2,
+    default: 1,
+  },
+  topP: {
+    value: 1,
+    min: 0,
+    max: 1,
+    default: 1,
+  },
+};
+
 // Image Models
 
 export const titanImageModelConfig: ModelConfig = [

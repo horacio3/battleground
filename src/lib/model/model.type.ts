@@ -13,7 +13,8 @@ export type Provider =
   | "Nvidia"
   | "OpenAI"
   | "AI21"
-  | "Luma Labs";
+  | "Luma Labs"
+  | "Writer";
 
 export type TextModelId =
   | "amazon.titan-text-lite-v1"
@@ -59,7 +60,9 @@ export type TextModelId =
   | "ai21.jamba-1-5-large-v1:0"
   | "gpt-4o"
   | "gpt-4o-mini"
-  | "o3-mini";
+  | "o3-mini"
+  | "us.writer.palmyra-x4-v1:0"
+  | "us.writer.palmyra-x5-v1:0";
 
 export type ImageModelId =
   | "amazon.titan-image-generator-v1"

@@ -19,6 +19,7 @@ import {
   titanTextExpressConfig,
   titanTextLiteConfig,
   titanTextPremierConfig,
+  writerModelConfig,
 } from "./model-configs";
 import { ImageModel, TextModel, VideoModel } from "./model.type";
 
@@ -442,6 +443,26 @@ export const textModels: TextModel[] = [
     inputModalities: ["TEXT"],
     outputModalities: ["TEXT"],
     config: ai21JambaInstructConfig,
+    systemPromptSupport: true,
+  },
+  {
+    provider: "Writer",
+    id: "us.writer.palmyra-x4-v1:0",
+    name: "Palmyra X4",
+    region: "us-west-2",
+    inputModalities: ["TEXT"],
+    outputModalities: ["TEXT"],
+    config: writerModelConfig,
+    systemPromptSupport: true,
+  },
+  {
+    provider: "Writer",
+    id: "us.writer.palmyra-x5-v1:0",
+    name: "Palmyra X5",
+    region: "us-west-2",
+    inputModalities: ["TEXT"],
+    outputModalities: ["TEXT"],
+    config: writerModelConfig,
     systemPromptSupport: true,
   },
 ];
