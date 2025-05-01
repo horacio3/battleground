@@ -14,7 +14,7 @@ export function convertAiMessagesToCoreMessages(messages: Message[]): CoreMessag
           content: [
             ...(m.content ? [{ type: "text", text: m.content }] : ([] as any)),
             ...images.map((image) => {
-              var regex = /data:(?<mime>[\w/\-\.]+);(?<encoding>\w+),(?<data>.*)/;
+              var regex = /data:(?<mime>[\w/\-\.\+]+);(?<encoding>\w+),(?<data>.*)/;
               var match = regex.exec(image.dataUrl);
               if (!match || !match.groups) throw new Error("Invalid image data URL");
               return {

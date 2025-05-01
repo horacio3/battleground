@@ -95,6 +95,18 @@ export const textModels: TextModel[] = [
     systemPromptSupport: true,
   },
   {
+    provider: "Amazon",
+    id: "us.amazon.nova-premier-v1:0",
+    region: "us-east-1",
+    name: "Nova Premier",
+    inputCostPerToken: 0.0025 / 1e3,
+    outputCostPerToken: 0.0125 / 1e3,
+    inputModalities: ["TEXT", "IMAGE"],
+    outputModalities: ["TEXT"],
+    config: novaConfig,
+    systemPromptSupport: true,
+  },
+  {
     provider: "Anthropic",
     id: "anthropic.claude-3-haiku-20240307-v1:0",
     name: "Claude 3 Haiku",

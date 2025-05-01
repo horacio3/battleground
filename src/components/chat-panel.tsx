@@ -106,6 +106,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
         });
       } finally {
         setChatMessages(chat.id, messages.slice(0, -1));
+        setMessages(messages.slice(0, -1));
       }
     },
   });
