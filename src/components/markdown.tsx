@@ -19,7 +19,7 @@ export const MemoizedMarkdown = memo(function MarkdownComponent({
   return (
     <Markdown
       className={cn(
-        "prose flex max-w-none flex-col overflow-y-auto overflow-x-hidden p-1 text-sm font-light dark:prose-invert prose-pre:m-0 prose-pre:rounded-md prose-pre:bg-transparent prose-pre:p-0 prose-pre:text-sm prose-pre:font-light",
+        "prose flex max-w-none flex-col overflow-y-auto overflow-x-hidden p-1 text-sm font-light dark:prose-invert prose-pre:m-0 prose-pre:rounded-md prose-pre:bg-transparent prose-pre:p-0 prose-pre:text-sm prose-pre:font-light prose-code:before:content-none prose-code:after:content-none",
         className,
       )}
       options={{
