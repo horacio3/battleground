@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
-import type { ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 
 type ScrollButtonAlignment = "left" | "center" | "right";
 
@@ -40,10 +40,37 @@ interface ChatMessageAreaProps {
   children: ReactNode;
   className?: string;
   scrollButtonAlignment?: ScrollButtonAlignment;
+  autoScrollToBottom?: boolean;
 }
 
-export function ChatMessageArea({ children, className, scrollButtonAlignment = "right" }: ChatMessageAreaProps) {
+export function ChatMessageArea({ 
+  children, 
+  className, 
+  scrollButtonAlignment = "right",
+  autoScrollToBottom = true
+}: ChatMessageAreaProps) {
   const [containerRef, showScrollButton, scrollToBottom] = useScrollToBottom<HTMLDivElement>();
+  const initialScrollDone = useRef(false);
+  
+  // Auto-scroll to bottom only on mount or when switching conversations
+  useEffect(() => {
+    if (autoScrollToBottom && !initialScrollDone.current) {
+      const timer = setTimeout(() => {
+        scrollToBottom();
+        initialScrollDone.current = true;
+      }, 50);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [autoScrollToBottom, scrollToBottom]);
+
+  // Reset the initialScrollDone ref when the component unmounts
+  // This ensures auto-scroll works when switching between conversations
+  useEffect(() => {
+    return () => {
+      initialScrollDone.current = false;
+    };
+  }, []);
 
   return (
     <ScrollArea className="relative flex-1">
