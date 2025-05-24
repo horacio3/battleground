@@ -6,6 +6,7 @@ import { getProviderIcon } from "@/lib/get-provider-icon";
 import { textModels } from "@/lib/model/models";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/stores/chat-store";
+import { useConversationStore } from "@/stores/conversation-store";
 import { ImageData } from "@/types/image-data.type";
 import { ResponseMetrics } from "@/types/response-metrics.type";
 import { useChat } from "@ai-sdk/react";
@@ -66,6 +67,9 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
   const resetChat = useChatStore((state) => state.resetChat);
   const resetChats = useChatStore((state) => state.resetChats);
   const setChatMessages = useChatStore((state) => state.setChatMessages);
+  
+  // Get the active conversation ID
+  const { activeConversationId } = useConversationStore();
 
   const { user } = useUser();
 
@@ -177,7 +181,11 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
           />
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="xsicon" onClick={() => addChat()}>
+              <Button 
+                variant="ghost" 
+                size="xsicon" 
+                onClick={() => activeConversationId && addChat(activeConversationId)}
+              >
                 <PlusIcon />
               </Button>
             </TooltipTrigger>
@@ -198,7 +206,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                 Clear Chat
               </DropdownMenuItem>
 
-              <DropdownMenuItem onClick={() => resetChats()}>
+              <DropdownMenuItem onClick={() => activeConversationId && resetChats(activeConversationId)}>
                 <CircleX className="mr-2 h-4 w-4" />
                 Clear All
               </DropdownMenuItem>

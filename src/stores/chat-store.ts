@@ -15,6 +15,7 @@ export type Chat = {
   attachments: ImageData[];
   synced: boolean;
   messages: Message[];
+  conversationId: string; // Added to associate with a conversation group
 };
 
 export type ChatParams = {
@@ -32,9 +33,9 @@ type ChatStoreState = {
   // State
   chats: Chat[];
   // Actions
-  addChat: () => void;
+  addChat: (conversationId?: string) => void;
   removeChat: (id: string) => void;
-  resetChats: () => void;
+  resetChats: (conversationId?: string) => void;
   resetChat: (id: string) => void;
   setChatModel: (id: string, model: TextModel) => void;
   updateModelParams: (id: string, params: ChatParams) => void;
@@ -44,11 +45,12 @@ type ChatStoreState = {
   resetChatInput: (id: string) => void;
   setChatSynced: (id: string, synced: boolean) => void;
   setChatMessages: (id: string, messages: Message[]) => void;
+  getChatsForConversation: (conversationId: string) => Chat[];
 };
 
 export const useChatStore = create<ChatStoreState>()(
   persist(
-    immer((set) => ({
+    immer((set, get) => ({
       chats: [
         {
           id: nanoid(),
@@ -57,11 +59,16 @@ export const useChatStore = create<ChatStoreState>()(
           input: "",
           attachments: [],
           synced: true,
+          conversationId: "default", // Will be replaced by the first conversation group ID
         },
       ],
 
-      addChat: () =>
+      addChat: (conversationId?: string) =>
         set((state) => {
+          // Use the provided conversationId or the first chat's conversationId as default
+          const targetConversationId = conversationId || 
+            (state.chats.length > 0 ? state.chats[0].conversationId : "default");
+          
           state.chats.push({
             id: nanoid(),
             model: textModels[0],
@@ -69,6 +76,7 @@ export const useChatStore = create<ChatStoreState>()(
             attachments: [],
             synced: true,
             messages: [],
+            conversationId: targetConversationId,
           });
         }),
 
@@ -76,8 +84,13 @@ export const useChatStore = create<ChatStoreState>()(
         set((state) => {
           const chatIndex = state.chats.findIndex((chat) => chat.id === id);
           if (chatIndex === -1) return state;
+          
+          const conversationId = state.chats[chatIndex].conversationId;
           state.chats.splice(chatIndex, 1);
-          if (state.chats.length === 0) {
+          
+          // If we removed the last chat in this conversation, add a new one
+          const conversationChats = state.chats.filter(chat => chat.conversationId === conversationId);
+          if (conversationChats.length === 0) {
             state.chats.push({
               id: nanoid(),
               model: textModels[0],
@@ -85,9 +98,14 @@ export const useChatStore = create<ChatStoreState>()(
               attachments: [],
               synced: true,
               messages: [],
+              conversationId,
             });
           }
         }),
+        
+      getChatsForConversation: (conversationId: string) => {
+        return get().chats.filter(chat => chat.conversationId === conversationId);
+      },
 
       setChatModel: (id: string, model: TextModel) =>
         set((state) => {
@@ -148,14 +166,17 @@ export const useChatStore = create<ChatStoreState>()(
         });
       },
 
-      resetChats: () => {
+      resetChats: (conversationId?: string) => {
         set((state) => {
           for (const chat of state.chats) {
-            // changing the chat id will reset the chat within the useChat hook
-            chat.id = nanoid();
-            chat.input = "";
-            chat.attachments = [];
-            chat.messages = [];
+            // If conversationId is provided, only reset chats for that conversation
+            if (!conversationId || chat.conversationId === conversationId) {
+              // changing the chat id will reset the chat within the useChat hook
+              chat.id = nanoid();
+              chat.input = "";
+              chat.attachments = [];
+              chat.messages = [];
+            }
           }
         });
       },
@@ -164,14 +185,21 @@ export const useChatStore = create<ChatStoreState>()(
         set((state) => {
           const chatIndex = state.chats.findIndex((chat) => chat.id === id);
           if (chatIndex === -1) return state;
-          if (state.chats[chatIndex].synced) {
+          
+          const currentChat = state.chats[chatIndex];
+          const conversationId = currentChat.conversationId;
+          
+          if (currentChat.synced) {
+            // Only sync with chats in the same conversation
             for (const chat of state.chats) {
-              if (chat.synced && chat.model.inputModalities.includes("TEXT")) {
+              if (chat.synced && 
+                  chat.conversationId === conversationId && 
+                  chat.model.inputModalities.includes("TEXT")) {
                 chat.input = input;
               }
             }
           } else {
-            state.chats[chatIndex].input = input;
+            currentChat.input = input;
           }
         });
       },
@@ -180,14 +208,21 @@ export const useChatStore = create<ChatStoreState>()(
         set((state) => {
           const chatIndex = state.chats.findIndex((chat) => chat.id === id);
           if (chatIndex === -1) return state;
-          if (state.chats[chatIndex].synced) {
+          
+          const currentChat = state.chats[chatIndex];
+          const conversationId = currentChat.conversationId;
+          
+          if (currentChat.synced) {
+            // Only sync with chats in the same conversation
             for (const chat of state.chats) {
-              if (chat.synced && chat.model.inputModalities.includes("IMAGE")) {
+              if (chat.synced && 
+                  chat.conversationId === conversationId && 
+                  chat.model.inputModalities.includes("IMAGE")) {
                 chat.attachments.push(attachment);
               }
             }
           } else {
-            state.chats[chatIndex].attachments.push(attachment);
+            currentChat.attachments.push(attachment);
           }
         });
       },
@@ -196,12 +231,19 @@ export const useChatStore = create<ChatStoreState>()(
         set((state) => {
           const chatIndex = state.chats.findIndex((chat) => chat.id === id);
           if (chatIndex === -1) return state;
-          if (state.chats[chatIndex].synced) {
+          
+          const currentChat = state.chats[chatIndex];
+          const conversationId = currentChat.conversationId;
+          
+          if (currentChat.synced) {
+            // Only sync with chats in the same conversation
             for (const chat of state.chats) {
-              chat.attachments = chat.attachments.filter((a) => a.name !== attachment.name);
+              if (chat.conversationId === conversationId) {
+                chat.attachments = chat.attachments.filter((a) => a.name !== attachment.name);
+              }
             }
           } else {
-            state.chats[chatIndex].attachments = state.chats[chatIndex].attachments.filter(
+            currentChat.attachments = currentChat.attachments.filter(
               (a) => a.name !== attachment.name,
             );
           }
@@ -254,6 +296,10 @@ export const useChatStore = create<ChatStoreState>()(
         };
       },
       onRehydrateStorage: () => (state) => {
+        // Import the conversation store to get the default conversation ID
+        const { useConversationStore } = require("./conversation-store");
+        const defaultConversationId = useConversationStore.getState().activeConversationId || "default";
+        
         if (state?.chats.length === 0) {
           state.chats.push({
             id: nanoid(),
@@ -262,9 +308,17 @@ export const useChatStore = create<ChatStoreState>()(
             attachments: [],
             synced: true,
             messages: [],
+            conversationId: defaultConversationId,
           });
           return;
         }
+        
+        // Ensure all chats have a conversationId
+        state.chats.forEach(chat => {
+          if (!chat.conversationId) {
+            chat.conversationId = defaultConversationId;
+          }
+        });
 
         // handles legacy state
         state?.chats.forEach((chat, idx) => {
