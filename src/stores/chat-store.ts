@@ -32,6 +32,7 @@ export type ChatParams = {
 type ChatStoreState = {
   // State
   chats: Chat[];
+  initializedConversations: string[];
   // Actions
   addChat: (conversationId?: string) => void;
   removeChat: (id: string) => void;
@@ -46,6 +47,7 @@ type ChatStoreState = {
   setChatSynced: (id: string, synced: boolean) => void;
   setChatMessages: (id: string, messages: Message[]) => void;
   getChatsForConversation: (conversationId: string) => Chat[];
+  isConversationInitialized: (conversationId: string) => boolean;
 };
 
 export const useChatStore = create<ChatStoreState>()(
@@ -62,6 +64,7 @@ export const useChatStore = create<ChatStoreState>()(
           conversationId: "default", // Will be replaced by the first conversation group ID
         },
       ],
+      initializedConversations: ["default"],
 
       addChat: (conversationId?: string) =>
         set((state) => {
@@ -78,6 +81,11 @@ export const useChatStore = create<ChatStoreState>()(
             messages: [],
             conversationId: targetConversationId,
           });
+          
+          // Mark this conversation as initialized if it's not already
+          if (!state.initializedConversations.includes(targetConversationId)) {
+            state.initializedConversations.push(targetConversationId);
+          }
         }),
 
       removeChat: (id: string) =>
@@ -105,6 +113,10 @@ export const useChatStore = create<ChatStoreState>()(
         
       getChatsForConversation: (conversationId: string) => {
         return get().chats.filter(chat => chat.conversationId === conversationId);
+      },
+      
+      isConversationInitialized: (conversationId: string) => {
+        return get().initializedConversations.includes(conversationId);
       },
 
       setChatModel: (id: string, model: TextModel) =>
@@ -293,6 +305,7 @@ export const useChatStore = create<ChatStoreState>()(
               })),
             ],
           })),
+          initializedConversations: state.initializedConversations,
         };
       },
       onRehydrateStorage: () => (state) => {

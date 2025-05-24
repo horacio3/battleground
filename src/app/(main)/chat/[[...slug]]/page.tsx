@@ -31,12 +31,17 @@ export default function Chat() {
     return () => unsubscribe();
   }, [isLoaded, activeConversationId]);
 
-  // Create a new chat if there are none for this conversation
+  // Create a new chat if there are none for this conversation and it hasn't been initialized
+  const isConversationInitialized = useChatStore(state => state.isConversationInitialized);
+  
   useEffect(() => {
     if (isLoaded && activeConversationId && conversationChats.length === 0) {
-      addChat(activeConversationId);
+      // Only create a new chat if the conversation hasn't been initialized
+      if (!isConversationInitialized(activeConversationId)) {
+        addChat(activeConversationId);
+      }
     }
-  }, [isLoaded, activeConversationId, conversationChats.length, addChat]);
+  }, [isLoaded, activeConversationId, conversationChats.length, addChat, isConversationInitialized]);
 
   return (
     <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
