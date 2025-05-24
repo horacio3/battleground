@@ -267,9 +267,8 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                       );
                     case "text":
                       return (
-                        <div className="flex flex-row justify-between gap-2">
+                        <div key={`${message.id}-${idx}`} className="flex flex-row justify-between gap-2">
                           <MemoizedMarkdown
-                            key={idx}
                             messageId={message.id}
                             response={part.text}
                             className="p-0.5"
