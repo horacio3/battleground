@@ -12,7 +12,7 @@ import { createDataStreamResponse, Message, streamText } from "ai";
 import { NextRequest } from "next/server";
 
 // IMPORTANT! Set the runtime to edge
-export const runtime = "edge";
+// export const runtime = "edge";
 
 const internalRateLimitDomain = process.env.INTERNAL_RATE_LIMIT_DOMAIN;
 
