@@ -10,9 +10,6 @@ import { getPresignedUrl } from "@/lib/get-presigned-url";
 import { ModelConfig } from "@/lib/model/model-config.type";
 import { ipAddress } from "@vercel/functions";
 
-// IMPORTANT! Set the runtime to edge
-export const runtime = "edge";
-
 const internalRateLimitDomain = process.env.INTERNAL_RATE_LIMIT_DOMAIN;
 
 const videoBuckets = {

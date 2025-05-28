@@ -10,9 +10,6 @@ import { NextRequest } from "next/server";
 
 import { ipAddress } from "@vercel/functions";
 
-// IMPORTANT! Set the runtime to edge
-export const runtime = "edge";
-
 const decoder = new TextDecoder();
 
 const internalRateLimitDomain = process.env.INTERNAL_RATE_LIMIT_DOMAIN;

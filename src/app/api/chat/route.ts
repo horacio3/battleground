@@ -11,9 +11,6 @@ import { auth } from "@clerk/nextjs/server";
 import { createDataStreamResponse, Message, streamText } from "ai";
 import { NextRequest } from "next/server";
 
-// IMPORTANT! Set the runtime to edge
-// export const runtime = "edge";
-
 const internalRateLimitDomain = process.env.INTERNAL_RATE_LIMIT_DOMAIN;
 
 export async function POST(req: NextRequest) {
@@ -102,7 +99,7 @@ export async function POST(req: NextRequest) {
         result.mergeIntoDataStream(dataStream, { sendReasoning: true });
       },
       onError: (err) => {
-        console.error("ERROR", err);
+        console.error("ERROR", JSON.stringify(err, null, 2));
         return "error";
       },
     });
