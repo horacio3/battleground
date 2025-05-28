@@ -1,8 +1,6 @@
 import { PollyClient, SynthesizeSpeechCommand, VoiceId } from "@aws-sdk/client-polly";
 import { NextResponse } from "next/server";
 
-export const runtime = "edge";
-
 // Hard coded to us-east-1 until generative vocies are available in other regions
 const pollyClient = new PollyClient({
   region: "us-east-1",
