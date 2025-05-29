@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
               apiKey: process.env.OPENAI_API_KEY ?? "",
             })(modelId)
           : createAmazonBedrock({
-              region: modelInfo?.region ?? process.env.AWS_REGION ?? "us-east-1",
+              region: modelInfo?.region ?? "us-east-1",
               accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID ?? process.env.AWS_ACCESS_KEY_ID ?? "",
               secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY ?? process.env.AWS_SECRET_ACCESS_KEY ?? "",
             })(modelId);
