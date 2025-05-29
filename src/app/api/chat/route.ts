@@ -71,6 +71,9 @@ export async function POST(req: NextRequest) {
           maxTokens: config?.maxTokens.value,
           temperature: config?.temperature.value,
           topP: config?.topP.value,
+          headers: {
+            "user-agent": "Test",
+          },
           providerOptions: {
             bedrock: config?.reasoning?.enabled
               ? {
