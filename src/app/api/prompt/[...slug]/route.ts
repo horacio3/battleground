@@ -14,8 +14,8 @@ const DEFAULT_VARIANT = "BATTLEGROUND";
 const client = new BedrockAgentClient({
   region: "us-east-1",
   credentials: {
-    accessKeyId: process.env.APP_AWS_ACCESS_KEY_ID ?? process.env.AWS_ACCESS_KEY_ID ?? "",
-    secretAccessKey: process.env.APP_AWS_SECRET_ACCESS_KEY ?? process.env.AWS_SECRET_ACCESS_KEY ?? "",
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
   },
 });
 

@@ -76,8 +76,8 @@ Follow these steps to set up the Bedrock Playground on your local machine:
    NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
    CLERK_SECRET_KEY=your_clerk_secret_key
-   APP_AWS_ACCESS_KEY_ID=your_aws_access_key_id
-   APP_AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
+   AWS_ACCESS_KEY_ID=your_aws_access_key_id
+   AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key
    AWS_REGION=your_aws_region
 
    # Optional variables
