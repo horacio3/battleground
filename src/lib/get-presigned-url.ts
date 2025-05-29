@@ -9,13 +9,7 @@ export const getPresignedUrl = async (
   const [, , bucket, ...keyParts] = uri.split("/");
   const key = keyParts.join("/");
 
-  const client = new S3Client({
-    region,
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
-    },
-  });
+  const client = new S3Client({ region });
 
   const command = new GetObjectCommand({
     Bucket: bucket,

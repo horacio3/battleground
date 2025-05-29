@@ -4,10 +4,6 @@ import { NextResponse } from "next/server";
 // Hard coded to us-east-1 until generative vocies are available in other regions
 const pollyClient = new PollyClient({
   region: "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID ?? "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY ?? "",
-  },
 });
 
 export async function POST(req: Request) {
