@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import { memo } from "react";
 import { Codeblock } from "./codeblock";
 import { Mermaid } from "./mermaid";
+import { escapeHtml } from "markdown-to-jsx/dist/utils";
 
 export const MemoizedMarkdown = memo(function MarkdownComponent({
   messageId,
@@ -16,6 +17,9 @@ export const MemoizedMarkdown = memo(function MarkdownComponent({
   className?: string;
   isLoading?: boolean;
 }) {
+  // Escape angle brackets in user messages to prevent React from trying to render them as components
+  const safeResponse = response.replace(/<([A-Za-z][A-Za-z0-9]*)(>|\s)/g, '&lt;$1$2');
+  
   return (
     <Markdown
       className={cn(
@@ -64,7 +68,7 @@ export const MemoizedMarkdown = memo(function MarkdownComponent({
         },
       }}
     >
-      {response}
+      {safeResponse}
     </Markdown>
   );
 });

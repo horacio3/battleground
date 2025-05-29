@@ -1,4 +1,5 @@
 import { useChatStore } from "@/stores/chat-store";
+import { useProjectStore } from "@/stores/project-store";
 import { ResponseMetrics } from "@/types/response-metrics.type";
 import { LineChart } from "lucide-react";
 import { CartesianGrid, Scatter, ScatterChart, XAxis, YAxis, ZAxis } from "recharts";
@@ -29,8 +30,18 @@ export type MetricsChartData = {
 
 export const MetricsChartPopoverButton = () => {
   const chats = useChatStore((state) => state.chats);
+  const activeProjectId = useProjectStore((state) => state.activeProjectId);
+  const projects = useProjectStore((state) => state.projects);
+  
+  // Get the active project
+  const activeProject = projects.find(p => p.id === activeProjectId);
+  
+  // Filter chats that belong to the active project
+  const projectChats = activeProject 
+    ? chats.filter(chat => activeProject.chatIds.includes(chat.id))
+    : [];
 
-  const chartData = chats.map((chat) => {
+  const chartData = projectChats.map((chat) => {
     const assistantMessages = chat.messages?.filter((m) => m.role === "assistant" && m.annotations?.length) ?? [];
 
     const metricsData = assistantMessages

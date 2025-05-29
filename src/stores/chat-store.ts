@@ -1,5 +1,6 @@
 import { TextModel } from "@/lib/model/model.type";
 import { textModels } from "@/lib/model/models";
+import { useProjectStore } from "@/stores/project-store";
 import { ImageData } from "@/types/image-data.type";
 import { Message } from "ai";
 import { nanoid } from "nanoid";
@@ -31,12 +32,13 @@ export type ChatParams = {
 type ChatStoreState = {
   // State
   chats: Chat[];
+  activeChat: string;
   // Actions
-  addChat: () => void;
+  addChat: () => string;
   removeChat: (id: string) => void;
   resetChats: () => void;
-  resetChat: (id: string) => void;
-  setChatModel: (id: string, model: TextModel) => void;
+  resetChat: (id: string) => string;
+  setChatModel: (id: string, model: TextModel) => string;
   updateModelParams: (id: string, params: ChatParams) => void;
   setChatInput: (id: string, input: string) => void;
   addAttachmentToChat: (id: string, attachment: ImageData) => void;
@@ -44,6 +46,7 @@ type ChatStoreState = {
   resetChatInput: (id: string) => void;
   setChatSynced: (id: string, synced: boolean) => void;
   setChatMessages: (id: string, messages: Message[]) => void;
+  setActiveChat: (id: string) => void;
 };
 
 export const useChatStore = create<ChatStoreState>()(
@@ -59,46 +62,85 @@ export const useChatStore = create<ChatStoreState>()(
           synced: true,
         },
       ],
+      activeChat: "",
 
-      addChat: () =>
+      addChat: () => {
+        let newChatId = "";
         set((state) => {
+          newChatId = nanoid();
           state.chats.push({
-            id: nanoid(),
+            id: newChatId,
             model: textModels[0],
             input: "",
             attachments: [],
             synced: true,
             messages: [],
           });
-        }),
+        });
+        return newChatId;
+      },
 
       removeChat: (id: string) =>
         set((state) => {
           const chatIndex = state.chats.findIndex((chat) => chat.id === id);
           if (chatIndex === -1) return state;
+          
+          // Check if we're removing the active chat
+          const isActiveChat = state.activeChat === id;
+          
           state.chats.splice(chatIndex, 1);
+          
           if (state.chats.length === 0) {
+            const newChatId = nanoid();
             state.chats.push({
-              id: nanoid(),
+              id: newChatId,
               model: textModels[0],
               input: "",
               attachments: [],
               synced: true,
               messages: [],
             });
+            state.activeChat = newChatId;
+          } else if (isActiveChat) {
+            // Set active chat to the first available chat
+            state.activeChat = state.chats[0].id;
           }
         }),
 
-      setChatModel: (id: string, model: TextModel) =>
+      setChatModel: (id: string, model: TextModel) => {
+        let oldChatId = id;
+        let newChatId = "";
+        
         set((state) => {
           const chatIndex = state.chats.findIndex((chat) => chat.id === id);
           if (chatIndex === -1) return state;
+          
+          // Store the old chat ID
+          oldChatId = state.chats[chatIndex].id;
+          
+          // Generate a new ID for the chat
+          newChatId = nanoid();
+          
+          // Update the chat with the new model and reset its state
           state.chats[chatIndex].model = model;
-          state.chats[chatIndex].id = nanoid();
+          state.chats[chatIndex].id = newChatId;
           state.chats[chatIndex].input = "";
           state.chats[chatIndex].attachments = [];
           state.chats[chatIndex].messages = [];
-        }),
+        });
+        
+        // Update any project references to this chat
+        const projects = useProjectStore.getState().projects;
+        projects.forEach(project => {
+          const chatIndex = project.chatIds.indexOf(oldChatId);
+          if (chatIndex !== -1) {
+            useProjectStore.getState().removeChatFromProject(project.id, oldChatId);
+            useProjectStore.getState().addChatToProject(project.id, newChatId);
+          }
+        });
+        
+        return newChatId;
+      },
 
       updateModelParams: (id: string, params: ChatParams) => {
         set((state) => {
@@ -137,26 +179,75 @@ export const useChatStore = create<ChatStoreState>()(
       },
 
       resetChat: (id: string) => {
+        let oldChatId = id;
+        let newChatId = "";
+        
         set((state) => {
           const chatIndex = state.chats.findIndex((chat) => chat.id === id);
           if (chatIndex === -1) return state;
+          
+          // Store the old chat ID
+          oldChatId = state.chats[chatIndex].id;
+          
+          // Generate a new ID for the chat
+          newChatId = nanoid();
+          
           // changing the chat id will reset the chat within the useChat hook
-          state.chats[chatIndex].id = nanoid();
+          state.chats[chatIndex].id = newChatId;
           state.chats[chatIndex].input = "";
           state.chats[chatIndex].attachments = [];
           state.chats[chatIndex].messages = [];
         });
+        
+        // Update any project references to this chat
+        const projects = useProjectStore.getState().projects;
+        projects.forEach(project => {
+          const chatIndex = project.chatIds.indexOf(oldChatId);
+          if (chatIndex !== -1) {
+            useProjectStore.getState().removeChatFromProject(project.id, oldChatId);
+            useProjectStore.getState().addChatToProject(project.id, newChatId);
+          }
+        });
+        
+        return newChatId;
       },
 
       resetChats: () => {
+        // Get the active project
+        const activeProjectId = useProjectStore.getState().activeProjectId;
+        if (!activeProjectId) return;
+        
+        // Get the active project's chat IDs
+        const project = useProjectStore.getState().projects.find(p => p.id === activeProjectId);
+        if (!project) return;
+        
+        const oldChatIds = [];
+        const newChatIds = [];
+        
         set((state) => {
+          // Only reset chats in the current project
           for (const chat of state.chats) {
-            // changing the chat id will reset the chat within the useChat hook
-            chat.id = nanoid();
-            chat.input = "";
-            chat.attachments = [];
-            chat.messages = [];
+            if (project.chatIds.includes(chat.id)) {
+              // Store the old chat ID
+              oldChatIds.push(chat.id);
+              
+              // Generate a new ID for the chat
+              const newId = nanoid();
+              newChatIds.push(newId);
+              
+              // changing the chat id will reset the chat within the useChat hook
+              chat.id = newId;
+              chat.input = "";
+              chat.attachments = [];
+              chat.messages = [];
+            }
           }
+        });
+        
+        // Update project references for the reset chats
+        oldChatIds.forEach((oldId, index) => {
+          useProjectStore.getState().removeChatFromProject(activeProjectId, oldId);
+          useProjectStore.getState().addChatToProject(activeProjectId, newChatIds[index]);
         });
       },
 
@@ -164,13 +255,32 @@ export const useChatStore = create<ChatStoreState>()(
         set((state) => {
           const chatIndex = state.chats.findIndex((chat) => chat.id === id);
           if (chatIndex === -1) return state;
+          
+          // Get the active project
+          const activeProjectId = useProjectStore.getState().activeProjectId;
+          if (!activeProjectId) {
+            // If no active project, just update this chat
+            state.chats[chatIndex].input = input;
+            return;
+          }
+          
+          // Get the active project's chat IDs
+          const project = useProjectStore.getState().projects.find(p => p.id === activeProjectId);
+          if (!project) {
+            // If project not found, just update this chat
+            state.chats[chatIndex].input = input;
+            return;
+          }
+          
+          // If the chat is synced, update all chats in the same project
           if (state.chats[chatIndex].synced) {
             for (const chat of state.chats) {
-              if (chat.synced && chat.model.inputModalities.includes("TEXT")) {
+              if (project.chatIds.includes(chat.id) && chat.synced && chat.model.inputModalities.includes("TEXT")) {
                 chat.input = input;
               }
             }
           } else {
+            // Otherwise just update this chat
             state.chats[chatIndex].input = input;
           }
         });
@@ -180,13 +290,32 @@ export const useChatStore = create<ChatStoreState>()(
         set((state) => {
           const chatIndex = state.chats.findIndex((chat) => chat.id === id);
           if (chatIndex === -1) return state;
+          
+          // Get the active project
+          const activeProjectId = useProjectStore.getState().activeProjectId;
+          if (!activeProjectId) {
+            // If no active project, just update this chat
+            state.chats[chatIndex].attachments.push(attachment);
+            return;
+          }
+          
+          // Get the active project's chat IDs
+          const project = useProjectStore.getState().projects.find(p => p.id === activeProjectId);
+          if (!project) {
+            // If project not found, just update this chat
+            state.chats[chatIndex].attachments.push(attachment);
+            return;
+          }
+          
+          // If the chat is synced, update all chats in the same project
           if (state.chats[chatIndex].synced) {
             for (const chat of state.chats) {
-              if (chat.synced && chat.model.inputModalities.includes("IMAGE")) {
+              if (project.chatIds.includes(chat.id) && chat.synced && chat.model.inputModalities.includes("IMAGE")) {
                 chat.attachments.push(attachment);
               }
             }
           } else {
+            // Otherwise just update this chat
             state.chats[chatIndex].attachments.push(attachment);
           }
         });
@@ -196,11 +325,36 @@ export const useChatStore = create<ChatStoreState>()(
         set((state) => {
           const chatIndex = state.chats.findIndex((chat) => chat.id === id);
           if (chatIndex === -1) return state;
+          
+          // Get the active project
+          const activeProjectId = useProjectStore.getState().activeProjectId;
+          if (!activeProjectId) {
+            // If no active project, just update this chat
+            state.chats[chatIndex].attachments = state.chats[chatIndex].attachments.filter(
+              (a) => a.name !== attachment.name,
+            );
+            return;
+          }
+          
+          // Get the active project's chat IDs
+          const project = useProjectStore.getState().projects.find(p => p.id === activeProjectId);
+          if (!project) {
+            // If project not found, just update this chat
+            state.chats[chatIndex].attachments = state.chats[chatIndex].attachments.filter(
+              (a) => a.name !== attachment.name,
+            );
+            return;
+          }
+          
+          // If the chat is synced, update all chats in the same project
           if (state.chats[chatIndex].synced) {
             for (const chat of state.chats) {
-              chat.attachments = chat.attachments.filter((a) => a.name !== attachment.name);
+              if (project.chatIds.includes(chat.id) && chat.synced) {
+                chat.attachments = chat.attachments.filter((a) => a.name !== attachment.name);
+              }
             }
           } else {
+            // Otherwise just update this chat
             state.chats[chatIndex].attachments = state.chats[chatIndex].attachments.filter(
               (a) => a.name !== attachment.name,
             );
@@ -233,6 +387,12 @@ export const useChatStore = create<ChatStoreState>()(
           state.chats[chatIndex].messages = messages;
         });
       },
+      
+      setActiveChat: (id: string) => {
+        set((state) => {
+          state.activeChat = id;
+        });
+      },
     })),
     {
       name: "chat-store",
@@ -251,19 +411,27 @@ export const useChatStore = create<ChatStoreState>()(
               })),
             ],
           })),
+          activeChat: state.activeChat,
         };
       },
       onRehydrateStorage: () => (state) => {
         if (state?.chats.length === 0) {
+          const newChatId = nanoid();
           state.chats.push({
-            id: nanoid(),
+            id: newChatId,
             model: textModels[0],
             input: "",
             attachments: [],
             synced: true,
             messages: [],
           });
+          state.activeChat = newChatId;
           return;
+        }
+        
+        // Set active chat to first chat if not set
+        if (!state.activeChat && state.chats.length > 0) {
+          state.activeChat = state.chats[0].id;
         }
 
         // handles legacy state

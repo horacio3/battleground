@@ -1,4 +1,5 @@
 import { useChatStore } from "@/stores/chat-store";
+import { useProjectStore } from "@/stores/project-store";
 import { ResponseMetrics } from "@/types/response-metrics.type";
 import { Download } from "lucide-react";
 import { CSVLink } from "react-csv";
@@ -7,8 +8,18 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export const MetricsExportButton = () => {
   const chats = useChatStore((state) => state.chats);
+  const activeProjectId = useProjectStore((state) => state.activeProjectId);
+  const projects = useProjectStore((state) => state.projects);
+  
+  // Get the active project
+  const activeProject = projects.find(p => p.id === activeProjectId);
+  
+  // Filter chats that belong to the active project
+  const projectChats = activeProject 
+    ? chats.filter(chat => activeProject.chatIds.includes(chat.id))
+    : [];
 
-  const csvData = chats.flatMap((chat) => {
+  const csvData = projectChats.flatMap((chat) => {
     const assistantMessages = chat.messages?.filter((m) => m.role === "assistant") ?? [];
 
     return assistantMessages.map((m) => {

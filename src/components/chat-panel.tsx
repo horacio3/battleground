@@ -6,6 +6,7 @@ import { getProviderIcon } from "@/lib/get-provider-icon";
 import { textModels } from "@/lib/model/models";
 import { cn } from "@/lib/utils";
 import { useChatStore } from "@/stores/chat-store";
+import { useProjectStore } from "@/stores/project-store";
 import { ImageData } from "@/types/image-data.type";
 import { ResponseMetrics } from "@/types/response-metrics.type";
 import { useChat } from "@ai-sdk/react";
@@ -23,7 +24,7 @@ import {
   TrashIcon,
 } from "lucide-react";
 import Image from "next/image";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import { useFilePicker } from "use-file-picker";
 import { ChatConfig } from "./chat-config";
@@ -158,7 +159,16 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
           models={textModels}
           selectedModelId={chat.model.id ?? ""}
           onChange={(modelId) => {
-            setChatModel(chat.id, textModels.find((m) => m.id === modelId) ?? textModels[0]);
+            const newChatId = setChatModel(chat.id, textModels.find((m) => m.id === modelId) ?? textModels[0]);
+            
+            // Ensure the active project has the new chat ID
+            const activeProjectId = useProjectStore.getState().activeProjectId;
+            if (activeProjectId) {
+              const project = useProjectStore.getState().projects.find(p => p.id === activeProjectId);
+              if (project && !project.chatIds.includes(newChatId)) {
+                useProjectStore.getState().addChatToProject(activeProjectId, newChatId);
+              }
+            }
           }}
         />
         <div className="mr-auto" />
@@ -169,15 +179,39 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
             model={chat.model}
             onConfigChange={(config) => updateModelParams(chat.id, config)}
             onSynchronizeSystemPrompt={() => {
+              // Get the active project
+              const activeProjectId = useProjectStore.getState().activeProjectId;
+              if (!activeProjectId) return;
+              
+              // Get the active project's chat IDs
+              const project = useProjectStore.getState().projects.find(p => p.id === activeProjectId);
+              if (!project) return;
+              
+              // Only sync with chats in the same project
               chats.forEach((c) => {
                 if (c.id === chat.id) return;
-                updateModelParams(c.id, { systemPrompt: chat.model.config?.systemPrompt });
+                if (project.chatIds.includes(c.id)) {
+                  updateModelParams(c.id, { systemPrompt: chat.model.config?.systemPrompt });
+                }
               });
             }}
           />
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="xsicon" onClick={() => addChat()}>
+              <Button 
+                variant="ghost" 
+                size="xsicon" 
+                onClick={() => {
+                  const newChatId = addChat();
+                  // Add the new chat to the current project if one is active
+                  const activeProjectId = useProjectStore.getState().activeProjectId;
+                  if (activeProjectId) {
+                    useProjectStore.getState().addChatToProject(activeProjectId, newChatId);
+                    // Set the new chat as active
+                    useChatStore.getState().setActiveChat(newChatId);
+                  }
+                }}
+              >
                 <PlusIcon />
               </Button>
             </TooltipTrigger>
@@ -193,18 +227,36 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="p-2">
-              <DropdownMenuItem onClick={() => resetChat(chat.id)}>
+              <DropdownMenuItem onClick={() => {
+                const newChatId = resetChat(chat.id);
+                
+                // Ensure the active project has the new chat ID
+                const activeProjectId = useProjectStore.getState().activeProjectId;
+                if (activeProjectId) {
+                  const project = useProjectStore.getState().projects.find(p => p.id === activeProjectId);
+                  if (project && !project.chatIds.includes(newChatId)) {
+                    useProjectStore.getState().addChatToProject(activeProjectId, newChatId);
+                  }
+                }
+              }}>
                 <RefreshCcwIcon className="mr-2 h-4 w-4" />
                 Clear Chat
               </DropdownMenuItem>
 
               <DropdownMenuItem onClick={() => resetChats()}>
                 <CircleX className="mr-2 h-4 w-4" />
-                Clear All
+                Clear All Chats in Project
               </DropdownMenuItem>
 
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-500" onClick={() => removeChat(chat.id)}>
+              <DropdownMenuItem className="text-red-500" onClick={() => {
+                // Remove chat from project if it belongs to one
+                const activeProjectId = useProjectStore.getState().activeProjectId;
+                if (activeProjectId) {
+                  useProjectStore.getState().removeChatFromProject(activeProjectId, chat.id);
+                }
+                removeChat(chat.id);
+              }}>
                 <TrashIcon className="mr-2 h-4 w-4" />
                 Delete Chat
               </DropdownMenuItem>
@@ -238,16 +290,15 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                 />
               )}
               <div className="flex flex-1 flex-col gap-2">
-                {message.parts.map((part, idx) => {
+                {message.parts.map((part, partIdx) => {
                   switch (part.type) {
                     case "reasoning":
                       return (
-                        <Accordion key={idx} type="single" collapsible defaultValue="reasoning">
+                        <Accordion key={`${message.id}-reasoning-${partIdx}`} type="single" collapsible defaultValue="reasoning">
                           <AccordionItem value="reasoning" className="-mt-1.5 rounded-md border p-2">
                             <AccordionTrigger className="p-0.5 text-sm font-normal">Thinking...</AccordionTrigger>
                             <AccordionContent className="pb-0 pt-2 font-light">
                               <MemoizedMarkdown
-                                key={idx}
                                 messageId={message.id}
                                 response={part.reasoning}
                                 className="p-0.5"
@@ -259,9 +310,8 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                       );
                     case "text":
                       return (
-                        <div className="flex flex-row justify-between gap-2">
+                        <div key={`${message.id}-text-${partIdx}`} className="flex flex-row justify-between gap-2">
                           <MemoizedMarkdown
-                            key={idx}
                             messageId={message.id}
                             response={part.text}
                             className="p-0.5"
@@ -273,7 +323,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                         </div>
                       );
                     default:
-                      return <></>;
+                      return <React.Fragment key={`${message.id}-empty-${partIdx}`}></React.Fragment>;
                   }
                 })}
               </div>
@@ -363,7 +413,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
                 sourceId={chat.id}
                 onTranscript={(transcript) => {
                   setChatInput(chat.id, transcript);
-                  setTimeout(() => publish("chat-executed"), 500);
+                  setTimeout(() => executeChat(), 500);
                 }}
               />
               <Button
