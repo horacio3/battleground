@@ -28,8 +28,13 @@ export const Codeblock = ({ language = "text", children }: CodeblockProps) => {
     <div className="relative my-2 w-fit p-1 text-xs">
       <Tooltip>
         <TooltipTrigger asChild>
-          <Button variant="link" className="absolute right-1 text-white" onClick={copyToClipboard}>
-            <Copy className="h-4 w-4" />
+          <Button 
+            variant="secondary" 
+            size="sm"
+            className="absolute right-1 top-1 z-10 h-6 w-6 p-0 opacity-70 hover:opacity-100" 
+            onClick={copyToClipboard}
+          >
+            <Copy className="h-3 w-3" />
           </Button>
         </TooltipTrigger>
         <TooltipContent sideOffset={-5} className="text-xs">

@@ -40,7 +40,7 @@ export function useScrollToBottom<T extends HTMLElement>(): [RefObject<T | null>
     if (!container || !viewport) {
       return;
     }
-
+    
     updateScrollState(viewport);
 
     const handleScroll = () => {

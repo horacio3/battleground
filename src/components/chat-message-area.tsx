@@ -3,7 +3,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
-import type { ReactNode } from "react";
+import React, { ReactNode } from "react";
 
 type ScrollButtonAlignment = "left" | "center" | "right";
 
@@ -44,6 +44,8 @@ interface ChatMessageAreaProps {
 
 export function ChatMessageArea({ children, className, scrollButtonAlignment = "right" }: ChatMessageAreaProps) {
   const [containerRef, showScrollButton, scrollToBottom] = useScrollToBottom<HTMLDivElement>();
+  
+  // No auto-scroll effect - let the user control scrolling
 
   return (
     <ScrollArea className="relative flex-1">

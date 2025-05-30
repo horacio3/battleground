@@ -51,6 +51,8 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export const ChatPanel = ({ chatId }: { chatId: string }) => {
+  // Reference to the chat message area's scroll function
+  const scrollToBottomRef = React.useRef<() => void>();
   const { toast } = useToast();
   const publish = usePub();
   const chat = useChatStore((state) => state.chats.find((c) => c.id === chatId))!;
@@ -116,6 +118,16 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
     if (messages.length > 0) {
       setChatMessages(chat.id, messages);
     }
+    
+    // Always scroll to bottom when chat ID changes or messages update
+    setTimeout(() => {
+      // Find the specific viewport for this chat panel
+      const chatPanel = document.getElementById(`chat-panel-${chat.id}`);
+      const viewport = chatPanel?.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
+    }, 50);
   }, [chat.id, messages, setChatMessages]);
 
   useSub("chat-executed", () => {
@@ -153,7 +165,7 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
   const hasChatMetrics = !!chatMetrics?.inputTokens || !!chatMetrics?.outputTokens || !!chatMetrics?.cost;
 
   return (
-    <div className="min-width-[465px] relative flex flex-1 flex-col rounded-md border">
+    <div id={`chat-panel-${chat.id}`} className="min-width-[465px] relative flex flex-1 flex-col rounded-md border">
       <div className="flex flex-row items-center gap-1 rounded-t-md border-b bg-gray-50 p-2 dark:bg-background">
         <ModelSelect
           models={textModels}
