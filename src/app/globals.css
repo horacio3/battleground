@@ -99,3 +99,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Copy-paste styles */
+/* No special CSS needed for the JavaScript-based copy solution */
+
+/* Print styles */
+@media print {
+  * {
+    background: transparent !important;
+    color: #000 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  
+  pre, code {
+    border: 1px solid #999 !important;
+  }
+}
