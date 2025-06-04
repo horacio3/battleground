@@ -96,18 +96,67 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
     streamProtocol: "data",
     initialMessages: chat.messages,
     onError(error) {
+      let errorMessage = "";
+      let errorType = "unknown";
+      
       try {
-        const { message } = JSON.parse(error.message);
-        toast({
-          title: `${chat.model.id}: ${message}`,
-          description: "Please try again.",
-        });
+        // Try to parse the error message
+        const parsedError = JSON.parse(error.message);
+        errorMessage = parsedError.message || parsedError.name || "Unknown error";
+        
+        // Check for blank text field error
+        if (errorMessage.includes("text field") && errorMessage.includes("blank")) {
+          errorType = "validation";
+          errorMessage = "Empty message content detected";
+          toast({
+            title: `${chat.model.id}: Message Validation Error`,
+            description: "Cannot send empty messages. Please add content to your message.",
+          });
+        }
+        // Check for specific error types
+        else if (parsedError.name === "AI_LoadSettingError") {
+          errorType = "credentials";
+          errorMessage = "Missing AWS credentials for Bedrock";
+          toast({
+            title: `${chat.model.id}: AWS Credentials Error`,
+            description: "AWS credentials for Bedrock are missing or invalid. Message saved.",
+          });
+        }
+        // Check for common credential-related keywords
+        else if (errorMessage.toLowerCase().includes("credential") || 
+            errorMessage.toLowerCase().includes("auth") || 
+            errorMessage.toLowerCase().includes("key") ||
+            errorMessage.toLowerCase().includes("permission") ||
+            errorMessage.toLowerCase().includes("access")) {
+          errorType = "credentials";
+          toast({
+            title: `${chat.model.id}: Authentication Error`,
+            description: "Invalid or expired credentials. Message saved.",
+          });
+        } else {
+          errorType = "api";
+          toast({
+            title: `${chat.model.id}: ${errorMessage}`,
+            description: "Message saved. You can retry sending it.",
+          });
+        }
       } catch (e) {
+        // If we can't parse the error, it's likely a network issue
+        errorType = "network";
+        errorMessage = "Network connection error";
         toast({
-          title: `${chat.model.id}: Unknown error`,
-          description: "Please try again.",
+          title: `${chat.model.id}: Network Error`,
+          description: "Check your internet connection. Message saved.",
         });
       } finally {
+        // Save the failed message to the chat store with the specific error type
+        useChatStore.getState().setFailedMessage(chat.id, {
+          content: chat.input || messages[messages.length - 1]?.content || "",
+          attachments: chat.attachments,
+          error: errorMessage,
+          errorType: errorType
+        });
+        
         setChatMessages(chat.id, messages.slice(0, -1));
         setMessages(messages.slice(0, -1));
       }
@@ -137,6 +186,20 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
   });
 
   const executeChat = () => {
+    // Clear any existing failed message when attempting to send a new one
+    if (chat.failedMessage) {
+      useChatStore.getState().clearFailedMessage(chat.id);
+    }
+    
+    // Validate that the message has content before sending
+    if (!chat.input.trim()) {
+      toast({
+        title: "Empty Message",
+        description: "Cannot send empty messages. Please add content to your message.",
+      });
+      return;
+    }
+    
     if (chat.synced) {
       publish("chat-executed");
     } else {
@@ -278,6 +341,81 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
       </div>
 
       <ChatMessageArea scrollButtonAlignment="center" className={cn("flex flex-1 flex-col overflow-y-auto")}>
+        {/* Display failed message with retry button if exists */}
+        {chat.failedMessage && (
+          <div className="flex flex-col gap-4 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500">
+            <div className="flex flex-row items-start gap-4">
+              <Avatar className="size-6">
+                {user?.imageUrl ? (
+                  <AvatarImage src={user?.imageUrl} />
+                ) : (
+                  <AvatarFallback>{userInitials}</AvatarFallback>
+                )}
+              </Avatar>
+              <div className="flex flex-1 flex-col gap-2">
+                <div className="flex flex-row justify-between gap-2">
+                  <div className="p-0.5">
+                    <p>{chat.failedMessage.content}</p>
+                    <p className="text-sm text-red-500 mt-2">
+                      {chat.failedMessage.errorType === 'network' ? '🌐 Network Error: ' : 
+                       chat.failedMessage.errorType === 'credentials' ? '🔑 Credential Error: ' : 
+                       chat.failedMessage.errorType === 'api' ? '⚠️ API Error: ' : '❌ Error: '}
+                      {chat.failedMessage.error}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {chat.failedMessage.attachments?.length > 0 && (
+              <div className="flex flex-row flex-wrap items-center gap-1">
+                <Paperclip className="m-1 mr-4 h-4 w-4 text-muted-foreground" />
+                {chat.failedMessage.attachments.map((image) => (
+                  <ImageChip key={image.name} {...image} />
+                ))}
+              </div>
+            )}
+            
+            <div className="flex justify-end gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => {
+                  useChatStore.getState().clearFailedMessage(chat.id);
+                }}
+              >
+                Dismiss
+              </Button>
+              <Button 
+                variant="default" 
+                size="sm"
+                onClick={() => {
+                  // Store the failed message content and attachments
+                  const failedContent = chat.failedMessage?.content || "";
+                  const failedAttachments = [...(chat.failedMessage?.attachments || [])];
+                  
+                  // Clear the failed message first
+                  useChatStore.getState().clearFailedMessage(chat.id);
+                  
+                  // Set the input to the failed message content
+                  setChatInput(chat.id, failedContent);
+                  
+                  // Add any attachments
+                  failedAttachments.forEach(attachment => {
+                    addAttachmentToChat(chat.id, attachment);
+                  });
+                  
+                  // Use setTimeout to ensure state updates before executing
+                  setTimeout(() => executeChat(), 0);
+                }}
+              >
+                <RefreshCcwIcon className="mr-2 h-4 w-4" />
+                Retry
+              </Button>
+            </div>
+          </div>
+        )}
+        
         {messages.map((message, idx) => (
           <div
             key={message.id}

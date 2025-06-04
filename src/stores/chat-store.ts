@@ -16,6 +16,12 @@ export type Chat = {
   attachments: ImageData[];
   synced: boolean;
   messages: Message[];
+  failedMessage?: {
+    content: string;
+    attachments: ImageData[];
+    error: string;
+    errorType: 'network' | 'credentials' | 'api' | 'unknown';
+  };
 };
 
 export type ChatParams = {
@@ -47,6 +53,8 @@ type ChatStoreState = {
   setChatSynced: (id: string, synced: boolean) => void;
   setChatMessages: (id: string, messages: Message[]) => void;
   setActiveChat: (id: string) => void;
+  setFailedMessage: (id: string, failedMessage: Chat['failedMessage']) => void;
+  clearFailedMessage: (id: string) => void;
 };
 
 export const useChatStore = create<ChatStoreState>()(
@@ -393,6 +401,22 @@ export const useChatStore = create<ChatStoreState>()(
           state.activeChat = id;
         });
       },
+      
+      setFailedMessage: (id: string, failedMessage: Chat['failedMessage']) => {
+        set((state) => {
+          const chatIndex = state.chats.findIndex((chat) => chat.id === id);
+          if (chatIndex === -1) return state;
+          state.chats[chatIndex].failedMessage = failedMessage;
+        });
+      },
+      
+      clearFailedMessage: (id: string) => {
+        set((state) => {
+          const chatIndex = state.chats.findIndex((chat) => chat.id === id);
+          if (chatIndex === -1) return state;
+          state.chats[chatIndex].failedMessage = undefined;
+        });
+      },
     })),
     {
       name: "chat-store",
@@ -404,6 +428,10 @@ export const useChatStore = create<ChatStoreState>()(
           chats: state.chats.map((chat) => ({
             ...chat,
             attachments: [],
+            failedMessage: chat.failedMessage ? {
+              ...chat.failedMessage,
+              attachments: [] // Don't store attachment data URLs in localStorage
+            } : undefined,
             messages: [
               ...chat.messages.map((m) => ({
                 ...m,
