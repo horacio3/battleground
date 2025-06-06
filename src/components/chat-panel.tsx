@@ -5,7 +5,7 @@ import { usePub, useSub } from "@/lib/events";
 import { getProviderIcon } from "@/lib/get-provider-icon";
 import { textModels } from "@/lib/model/models";
 import { cn } from "@/lib/utils";
-import { useChatStore } from "@/stores/chat-store";
+import { handleStorageError, useChatStore } from "@/stores/chat-store";
 import { useProjectStore } from "@/stores/project-store";
 import { ImageData } from "@/types/image-data.type";
 import { ResponseMetrics } from "@/types/response-metrics.type";
@@ -164,20 +164,34 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
   });
 
   useEffect(() => {
-    if (messages.length > 0) {
-      setChatMessages(chat.id, messages);
-    }
-    
-    // Always scroll to bottom when chat ID changes or messages update
-    setTimeout(() => {
-      // Find the specific viewport for this chat panel
-      const chatPanel = document.getElementById(`chat-panel-${chat.id}`);
-      const viewport = chatPanel?.querySelector('[data-radix-scroll-area-viewport]');
-      if (viewport) {
-        viewport.scrollTop = viewport.scrollHeight;
+    try {
+      if (messages.length > 0) {
+        setChatMessages(chat.id, messages);
       }
-    }, 50);
-  }, [chat.id, messages, setChatMessages]);
+      
+      // Always scroll to bottom when chat ID changes or messages update
+      setTimeout(() => {
+        // Find the specific viewport for this chat panel
+        const chatPanel = document.getElementById(`chat-panel-${chat.id}`);
+        const viewport = chatPanel?.querySelector('[data-radix-scroll-area-viewport]');
+        if (viewport) {
+          viewport.scrollTop = viewport.scrollHeight;
+        }
+      }, 50);
+    } catch (error) {
+      // Handle localStorage quota exceeded error
+      if (error instanceof Error && error.name === 'QuotaExceededError' || 
+          (error.toString && error.toString().includes('quota'))) {
+        toast({
+          title: "Storage Limit Reached",
+          description: "Clearing old chat history to make space for new messages.",
+        });
+        handleStorageError();
+      } else {
+        console.error("Error updating chat messages:", error);
+      }
+    }
+  }, [chat.id, messages, setChatMessages, toast]);
 
   useSub("chat-executed", () => {
     if (!chat.synced) return;
@@ -186,25 +200,46 @@ export const ChatPanel = ({ chatId }: { chatId: string }) => {
   });
 
   const executeChat = () => {
-    // Clear any existing failed message when attempting to send a new one
-    if (chat.failedMessage) {
-      useChatStore.getState().clearFailedMessage(chat.id);
-    }
-    
-    // Validate that the message has content before sending
-    if (!chat.input.trim()) {
-      toast({
-        title: "Empty Message",
-        description: "Cannot send empty messages. Please add content to your message.",
-      });
-      return;
-    }
-    
-    if (chat.synced) {
-      publish("chat-executed");
-    } else {
-      append({ role: "user", content: chat.input, createdAt: new Date(), data: { images: chat.attachments } });
-      resetChatInput(chat.id);
+    try {
+      // Clear any existing failed message when attempting to send a new one
+      if (chat.failedMessage) {
+        useChatStore.getState().clearFailedMessage(chat.id);
+      }
+      
+      // Validate that the message has content before sending
+      if (!chat.input.trim()) {
+        toast({
+          title: "Empty Message",
+          description: "Cannot send empty messages. Please add content to your message.",
+        });
+        return;
+      }
+      
+      if (chat.synced) {
+        publish("chat-executed");
+      } else {
+        append({ role: "user", content: chat.input, createdAt: new Date(), data: { images: chat.attachments } });
+        resetChatInput(chat.id);
+      }
+    } catch (error) {
+      // Handle localStorage quota exceeded error
+      if (error instanceof Error && error.name === 'QuotaExceededError' || 
+          (error.toString && error.toString().includes('quota'))) {
+        toast({
+          title: "Storage Limit Reached",
+          description: "Clearing old chat history to make space for new messages.",
+        });
+        if (handleStorageError()) {
+          // Try again after clearing storage
+          setTimeout(() => executeChat(), 100);
+        }
+      } else {
+        console.error("Error executing chat:", error);
+        toast({
+          title: "Error Sending Message",
+          description: "An error occurred while sending your message. Please try again.",
+        });
+      }
     }
   };
 

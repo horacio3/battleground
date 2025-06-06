@@ -57,6 +57,9 @@ type ChatStoreState = {
   clearFailedMessage: (id: string) => void;
 };
 
+// Maximum number of chats to store in localStorage
+const MAX_STORED_CHATS = 10;
+
 export const useChatStore = create<ChatStoreState>()(
   persist(
     immer((set) => ({
@@ -424,16 +427,36 @@ export const useChatStore = create<ChatStoreState>()(
       version: 2,
       // don't store messages or attachments in local storage
       partialize: (state) => {
+        // Limit the number of chats stored in localStorage to prevent quota issues
+        const chatsToStore = [...state.chats];
+        
+        // Sort chats by most recently used (based on message timestamps)
+        chatsToStore.sort((a, b) => {
+          const aLastMessage = a.messages[a.messages.length - 1]?.createdAt;
+          const bLastMessage = b.messages[b.messages.length - 1]?.createdAt;
+          
+          if (!aLastMessage && !bLastMessage) return 0;
+          if (!aLastMessage) return 1;
+          if (!bLastMessage) return -1;
+          
+          return new Date(bLastMessage).getTime() - new Date(aLastMessage).getTime();
+        });
+        
+        // Only store the MAX_STORED_CHATS most recent chats
+        const limitedChats = chatsToStore.slice(0, MAX_STORED_CHATS);
+        
+        // Limit message history per chat to reduce storage size
         return {
-          chats: state.chats.map((chat) => ({
+          chats: limitedChats.map((chat) => ({
             ...chat,
-            attachments: [],
+            attachments: [], // Don't store attachments in localStorage
             failedMessage: chat.failedMessage ? {
               ...chat.failedMessage,
               attachments: [] // Don't store attachment data URLs in localStorage
             } : undefined,
             messages: [
-              ...chat.messages.map((m) => ({
+              // Only store the last 20 messages per chat
+              ...chat.messages.slice(-20).map((m) => ({
                 ...m,
                 data: m.role === "assistant" ? m.data : {},
               })),
@@ -492,4 +515,33 @@ export const useChatStoreHydrated = () => {
   }, []);
 
   return hydrated;
+};
+
+// Helper function to clear localStorage when quota is exceeded
+export const handleStorageError = () => {
+  try {
+    // Keep only essential data
+    const activeChat = useChatStore.getState().activeChat;
+    const currentChat = useChatStore.getState().chats.find(chat => chat.id === activeChat);
+    
+    // Clear the entire store
+    localStorage.removeItem('chat-store');
+    
+    // Reset the store with just the current chat if available
+    if (currentChat) {
+      useChatStore.setState({
+        chats: [{
+          ...currentChat,
+          messages: currentChat.messages.slice(-10), // Keep only the last 10 messages
+          attachments: []
+        }],
+        activeChat: currentChat.id
+      });
+    }
+    
+    return true;
+  } catch (e) {
+    console.error("Failed to handle storage error:", e);
+    return false;
+  }
 };
