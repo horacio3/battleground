@@ -18,13 +18,36 @@ export function convertAiMessagesToCoreMessages(messages: Message[]): CoreMessag
               var match = regex.exec(image.dataUrl);
               if (!match || !match.groups) throw new Error("Invalid image data URL");
               return {
-                type: "image" as const,
+                type: "file" as const,
                 mimeType: match.groups.mime,
-                image: Buffer.from(match.groups.data, "base64") as Uint8Array,
+                data: Buffer.from(match.groups.data, "base64") as Uint8Array,
               };
             }),
           ],
         };
+      case "assistant":
+        // Handle assistant messages that may contain image data
+        const content = m.content;
+        if (typeof content === "string") {
+          // Check if the content contains an image data URL
+          const imageMatch = content.match(/data:(?<mime>[\w/\-\.\+]+);(?<encoding>\w+),(?<data>.*)/);
+          if (imageMatch?.groups) {
+            return {
+              role: "assistant",
+              content: [
+                {
+                  type: "file" as const,
+                  mimeType: imageMatch.groups.mime,
+                  data: Buffer.from(imageMatch.groups.data, "base64") as Uint8Array,
+                },
+              ],
+            };
+          }
+          // If no image, return as text
+          return { role: "assistant", content: [{ type: "text", text: content }] };
+        }
+        // If content is already an array (mixed content), return as is
+        return { role: "assistant", content };
       default:
         return { role: "assistant", content: m.content };
     }

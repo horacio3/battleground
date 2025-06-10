@@ -18,8 +18,8 @@ export const useSub = <T = any>(event: EventName, callback: (data: T) => void) =
   return unsubscribe;
 };
 
-export const usePub = () => {
-  return <T>(event: EventName, data?: T) => {
+export const usePub = (event: EventName) => {
+  return <T>(data?: T) => {
     emitter.emit(event, data);
   };
 };

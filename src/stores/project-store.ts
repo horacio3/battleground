@@ -16,7 +16,7 @@ type ProjectStoreState = {
   // State
   projects: Project[];
   activeProjectId: string | null;
-  
+
   // Actions
   addProject: (name: string) => string;
   renameProject: (id: string, name: string) => void;
@@ -36,10 +36,16 @@ export const useProjectStore = create<ProjectStoreState>()(
         // Generate ID outside of set to avoid any state inconsistencies
         const newId = nanoid();
         const now = new Date();
-        
+
         // Create a default chat for this project first
-        const chatId = useChatStore.getState().addChat();
-        
+        const chatStore = useChatStore.getState();
+        if (!chatStore) {
+          console.error("Chat store not initialized");
+          return newId;
+        }
+
+        const chatId = chatStore.addChat();
+
         // Then update the project store in a single operation
         set((state) => {
           state.projects.push({
@@ -51,12 +57,16 @@ export const useProjectStore = create<ProjectStoreState>()(
           });
           state.activeProjectId = newId;
         });
-        
+
         // Set the newly created chat as active
-        setTimeout(() => {
-          useChatStore.getState().setActiveChat(chatId);
-        }, 0);
-        
+        // Use requestAnimationFrame instead of setTimeout for better timing
+        requestAnimationFrame(() => {
+          const chatStore = useChatStore.getState();
+          if (chatStore) {
+            chatStore.setActiveChat(chatId);
+          }
+        });
+
         return newId;
       },
 
@@ -72,20 +82,20 @@ export const useProjectStore = create<ProjectStoreState>()(
         set((state) => {
           const projectIndex = state.projects.findIndex((p) => p.id === id);
           if (projectIndex === -1) return;
-          
+
           // Get the chat IDs associated with this project before removing it
           const chatIdsToRemove = [...state.projects[projectIndex].chatIds];
-          
+
           // Remove the project
           state.projects.splice(projectIndex, 1);
-          
+
           // If we removed the active project, set a new active project
           if (state.activeProjectId === id) {
             state.activeProjectId = state.projects.length > 0 ? state.projects[0].id : null;
           }
-          
+
           // Remove the orphaned chats
-          chatIdsToRemove.forEach(chatId => {
+          chatIdsToRemove.forEach((chatId) => {
             useChatStore.getState().removeChat(chatId);
           });
         }),
@@ -94,18 +104,21 @@ export const useProjectStore = create<ProjectStoreState>()(
         set((state) => {
           const projectExists = state.projects.some((p) => p.id === id);
           if (!projectExists) return;
-          
+
           // Get the project we're switching to
-          const project = state.projects.find(p => p.id === id);
+          const project = state.projects.find((p) => p.id === id);
           state.activeProjectId = id;
-          
+
           // Set the active chat to the first chat in the project if available
           if (project && project.chatIds.length > 0) {
             const chatId = project.chatIds[0];
             // Make sure the chat exists in the chat store
-            const chatExists = useChatStore.getState().chats.some(c => c.id === chatId);
-            if (chatExists) {
-              useChatStore.getState().setActiveChat(chatId);
+            const chatStore = useChatStore.getState();
+            if (chatStore) {
+              const chatExists = chatStore.chats.some((c) => c.id === chatId);
+              if (chatExists) {
+                chatStore.setActiveChat(chatId);
+              }
             }
           }
         }),
@@ -114,7 +127,7 @@ export const useProjectStore = create<ProjectStoreState>()(
         set((state) => {
           const projectIndex = state.projects.findIndex((p) => p.id === projectId);
           if (projectIndex === -1) return;
-          
+
           // Only add if not already in the project
           if (!state.projects[projectIndex].chatIds.includes(chatId)) {
             state.projects[projectIndex].chatIds.push(chatId);
@@ -126,10 +139,8 @@ export const useProjectStore = create<ProjectStoreState>()(
         set((state) => {
           const projectIndex = state.projects.findIndex((p) => p.id === projectId);
           if (projectIndex === -1) return;
-          
-          state.projects[projectIndex].chatIds = state.projects[projectIndex].chatIds.filter(
-            (id) => id !== chatId
-          );
+
+          state.projects[projectIndex].chatIds = state.projects[projectIndex].chatIds.filter((id) => id !== chatId);
           state.projects[projectIndex].updatedAt = new Date();
         }),
     })),
@@ -137,6 +148,6 @@ export const useProjectStore = create<ProjectStoreState>()(
       name: "project-store",
       storage: createJSONStorage(() => localStorage),
       version: 1,
-    }
-  )
+    },
+  ),
 );
